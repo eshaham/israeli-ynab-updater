@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "arrow-body-style": 0,
+    "no-shadow": 0
+  },
+  "globals": {
+    "document": true,
+    "fetch": true,
+    "Headers": true
+  },
+  "extends": "airbnb-base"
+}
