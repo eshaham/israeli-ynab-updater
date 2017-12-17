@@ -4,7 +4,7 @@ import inquirer from 'inquirer';
 import { SCRAPERS } from './definitions';
 import { readFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
-import { leumiCardScraper } from './helpers/scrapers';
+import { discountScraper, leumiCardScraper, isracardScraper } from './helpers/scrapers';
 
 async function chooseScraper() {
   const scraperNameResult = await inquirer.prompt([{
@@ -21,6 +21,19 @@ async function chooseScraper() {
   return scraperNameResult.scraperName;
 }
 
+function getScraperByName(scraperName) {
+  switch (scraperName) {
+    case 'discount':
+      return discountScraper;
+    case 'leumiCard':
+      return leumiCardScraper;
+    case 'isracard':
+      return isracardScraper;
+    default:
+      throw new Error(`Unknown scraper ${scraperName}`);
+  }
+}
+
 export default async function () {
   const scraperName = await chooseScraper();
   const encryptedCredentials = await readFile(`${scraperName}.json`);
@@ -33,7 +46,8 @@ export default async function () {
         console.log(msg);
       },
     };
-    const result = await leumiCardScraper(credentials, options);
+    const scraper = getScraperByName(scraperName);
+    const result = await scraper(credentials, options);
     console.log(result);
   } else {
     console.log('Could not find credentials file');
