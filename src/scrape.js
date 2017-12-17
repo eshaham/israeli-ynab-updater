@@ -1,8 +1,9 @@
 import moment from 'moment';
 import inquirer from 'inquirer';
+import json2csv from 'json2csv';
 
-import { SCRAPERS } from './definitions';
-import { readFile } from './helpers/files';
+import { CONFIG_FOLDER, DOWNLOAD_FOLDER, SCRAPERS } from './definitions';
+import { writeFile, readJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { discountScraper, leumiCardScraper, isracardScraper } from './helpers/scrapers';
 
@@ -36,7 +37,7 @@ function getScraperByName(scraperName) {
 
 export default async function () {
   const scraperName = await chooseScraper();
-  const encryptedCredentials = await readFile(`${scraperName}.json`);
+  const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
     const options = {
@@ -48,7 +49,25 @@ export default async function () {
     };
     const scraper = getScraperByName(scraperName);
     const result = await scraper(credentials, options);
-    console.log(result);
+    console.log(`success: ${result.success}`);
+    if (result.success) {
+      console.log(`account #: ${result.accountNumber}`);
+      console.log(`number of txns: ${result.txns.length}`);
+      const txns = result.txns.map((txn) => {
+        return {
+          Date: moment(txn.date).format('DD/MM/YYYY'),
+          Payee: txn.description,
+          Outflow: txn.amount,
+        };
+      });
+      const fields = ['Date', 'Payee', 'Outflow'];
+      const csv = json2csv({ data: txns, fields, withBOM: true });
+      await writeFile(`${DOWNLOAD_FOLDER}/${scraperName}.csv`, csv);
+      console.log('file saved');
+    } else {
+      console.log(`error type: ${result.errorType}`);
+      console.log(`error message: ${result.errorMessage}`);
+    }
   } else {
     console.log('Could not find credentials file');
   }

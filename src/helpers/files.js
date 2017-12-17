@@ -1,27 +1,36 @@
 import fs from 'fs';
-import os from 'os';
+import path from 'path';
 import util from 'util';
 import jsonfile from 'jsonfile';
 
+const writeFileAsync = util.promisify(fs.writeFile);
 const existsAsync = util.promisify(fs.exists);
 const makeDirAsync = util.promisify(fs.mkdir);
-const readFileAsync = util.promisify(jsonfile.readFile);
-const writeFileAsync = util.promisify(jsonfile.writeFile);
+const readJsonFileAsync = util.promisify(jsonfile.readFile);
+const writeJsonFileAsync = util.promisify(jsonfile.writeFile);
 
-const folder = `${os.homedir()}/.ynab-updater`;
-
-export async function readFile(filename, options) {
-  const exists = await existsAsync(`${folder}/${filename}`);
-  if (!exists) {
-    return null;
-  }
-  return readFileAsync(`${folder}/${filename}`, options);
-}
-
-export async function writeFile(filename, obj, options) {
+async function verifyFolder(filePath) {
+  const folder = path.dirname(filePath);
   const exists = await existsAsync(folder);
   if (!exists) {
     await makeDirAsync(folder);
   }
-  await writeFileAsync(`${folder}/${filename}`, obj, options);
+}
+
+export async function writeFile(filePath, data, options) {
+  await verifyFolder(filePath);
+  return writeFileAsync(filePath, data, options);
+}
+
+export async function readJsonFile(filePath, options) {
+  const exists = await existsAsync(filePath);
+  if (!exists) {
+    return null;
+  }
+  return readJsonFileAsync(filePath, options);
+}
+
+export async function writeJsonFile(filePath, obj, options) {
+  await verifyFolder(filePath);
+  await writeJsonFileAsync(filePath, obj, options);
 }

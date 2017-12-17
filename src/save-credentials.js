@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 
-import { PASSWORD_FIELD, SCRAPERS } from './definitions';
-import { writeFile } from './helpers/files';
+import { CONFIG_FOLDER, PASSWORD_FIELD, SCRAPERS } from './definitions';
+import { writeJsonFile } from './helpers/files';
 import { enryptCredentials } from './helpers/credentials';
 
 function validateNonEmpty(field, input) {
@@ -34,6 +34,6 @@ export default async function () {
   });
   const credentialsResult = await inquirer.prompt(questions);
   const encryptedCredentials = enryptCredentials(credentialsResult);
-  await writeFile(`${scraperNameResult.scraperName}.json`, encryptedCredentials);
+  await writeJsonFile(`${CONFIG_FOLDER}/${scraperNameResult.scraperName}.json`, encryptedCredentials);
   console.log(`credentials file saved for ${scraperNameResult.scraperName}`);
 }
