@@ -1,22 +1,8 @@
 import inquirer from 'inquirer';
+
+import { PASSWORD_FIELD, SCRAPERS } from './definitions';
 import { writeFile } from './helpers/files';
 import { enryptCredentials } from './helpers/credentials';
-
-const PASSWORD_FIELD = 'password';
-const SCRAPERS = {
-  discount: {
-    name: 'Discount Bank',
-    fields: ['id', PASSWORD_FIELD, 'num'],
-  },
-  leumiCard: {
-    name: 'Leumi Card',
-    fields: ['username', PASSWORD_FIELD],
-  },
-  isracard: {
-    name: 'Isracard',
-    fields: ['id', 'card6Digits', PASSWORD_FIELD],
-  },
-};
 
 function validateNonEmpty(field, input) {
   if (input) {
