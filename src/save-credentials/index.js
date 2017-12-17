@@ -2,14 +2,21 @@ import inquirer from 'inquirer';
 import { writeFile } from '../helpers/files';
 import { enryptCredentials } from '../helpers/credentials';
 
-function getCredentialsfields(scraperName) {
-  const fieldMapping = {
-    discount: ['id', 'password', 'num'],
-    leumiCard: ['username', 'password'],
-    isracard: ['id', 'card6Digits', 'password'],
-  };
-  return fieldMapping[scraperName];
-}
+const PASSWORD_FIELD = 'password';
+const SCRAPERS = {
+  discount: {
+    name: 'Discount Bank',
+    fields: ['id', PASSWORD_FIELD, 'num'],
+  },
+  leumiCard: {
+    name: 'Leumi Card',
+    fields: ['username', PASSWORD_FIELD],
+  },
+  isracard: {
+    name: 'Isracard',
+    fields: ['id', 'card6Digits', PASSWORD_FIELD],
+  },
+};
 
 function validateNonEmpty(field, input) {
   if (input) {
@@ -23,25 +30,17 @@ export default async function () {
     type: 'list',
     name: 'scraperName',
     message: 'Which scraper would you like to save credentials for?',
-    choices: [
-      {
-        name: 'Discount Bank',
-        value: 'discount',
-      },
-      {
-        name: 'Leumi Card',
-        value: 'leumiCard',
-      },
-      {
-        name: 'Isracard',
-        value: 'isracard',
-      },
-    ],
+    choices: Object.keys(SCRAPERS).map((id) => {
+      return {
+        name: SCRAPERS[id].name,
+        value: id,
+      };
+    }),
   }]);
-  const fields = getCredentialsfields(scraperNameResult.scraperName);
+  const { fields } = SCRAPERS[scraperNameResult.scraperName];
   const questions = fields.map((field) => {
     return {
-      type: field === 'password' ? 'password' : 'input',
+      type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
       name: field,
       message: `Enter value for ${field}:`,
       validate: input => validateNonEmpty(field, input),
