@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
-import { writeFile } from '../helpers/files';
-import { enryptCredentials } from '../helpers/credentials';
+import { writeFile } from './helpers/files';
+import { enryptCredentials } from './helpers/credentials';
 
 const PASSWORD_FIELD = 'password';
 const SCRAPERS = {
