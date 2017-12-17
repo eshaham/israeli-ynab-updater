@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src",
-    "prepublishOnly": "node_modules/babel-cli/bin/babel.js src --out-dir lib"
+    "start": "node_modules/babel-cli/bin/babel-node.js src",
+    "credentials": "node_modules/babel-cli/bin/babel-node.js src -m credentials"
   },
   "pre-commit": [
     "lint"
@@ -33,6 +34,11 @@
     "pre-commit": "^1.2.2"
   },
   "dependencies": {
-    "babel-polyfill": "^6.26.0"
+    "babel-polyfill": "^6.26.0",
+    "inquirer": "^4.0.1",
+    "israeli-bank-scrapers": "^0.3.0",
+    "jsonfile": "^4.0.0",
+    "moment": "^2.19.3",
+    "yargs": "^10.0.3"
   }
 }
