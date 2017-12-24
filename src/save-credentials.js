@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 
-import { CONFIG_FOLDER, PASSWORD_FIELD, SCRAPERS } from './definitions';
+import { CONFIG_FOLDER, PASSWORD_FIELD } from './definitions';
+import { SCRAPERS } from './helpers/scrapers';
 import { writeJsonFile } from './helpers/files';
 import { enryptCredentials } from './helpers/credentials';
 
@@ -23,8 +24,8 @@ export default async function () {
       };
     }),
   }]);
-  const { fields } = SCRAPERS[scraperNameResult.scraperName];
-  const questions = fields.map((field) => {
+  const { loginFields } = SCRAPERS[scraperNameResult.scraperName];
+  const questions = loginFields.map((field) => {
     return {
       type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
       name: field,
