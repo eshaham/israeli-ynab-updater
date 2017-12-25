@@ -59,7 +59,7 @@ export default async function () {
       const fields = ['Date', 'Payee', 'Outflow', 'Installment', 'Total'];
       const csv = json2csv({ data: txns, fields, withBOM: true });
       await writeFile(`${DOWNLOAD_FOLDER}/${scraperName}.csv`, csv);
-      console.log('file saved');
+      console.log(`file saved: ${DOWNLOAD_FOLDER}/${scraperName}.csv`);
     } else {
       console.log(`error type: ${result.errorType}`);
       console.log('error:', result.errorMessage);
