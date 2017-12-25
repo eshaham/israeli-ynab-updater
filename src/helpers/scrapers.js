@@ -1,3 +1,1 @@
-import { discountScraper, leumiCardScraper, isracardScraper } from 'israeli-bank-scrapers';
-
-export { discountScraper, leumiCardScraper, isracardScraper };
+export { SCRAPERS, createScraper } from 'israeli-bank-scrapers';
