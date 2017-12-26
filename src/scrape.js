@@ -7,29 +7,38 @@ import { writeFile, readJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 
-async function chooseScraper() {
-  const scraperNameResult = await inquirer.prompt([{
-    type: 'list',
-    name: 'scraperName',
-    message: 'Which bank would you like to scrape?',
-    choices: Object.keys(SCRAPERS).map((id) => {
-      return {
-        name: SCRAPERS[id].name,
-        value: id,
-      };
-    }),
-  }]);
-  return scraperNameResult.scraperName;
+async function getParameters() {
+  const result = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'scraperName',
+      message: 'Which bank would you like to scrape?',
+      choices: Object.keys(SCRAPERS).map((id) => {
+        return {
+          name: SCRAPERS[id].name,
+          value: id,
+        };
+      }),
+    },
+    {
+      type: 'confirm',
+      name: 'combineInstallments',
+      message: 'Combine installment transactions?',
+      default: true,
+    },
+  ]);
+  return result;
 }
 
 export default async function () {
-  const scraperName = await chooseScraper();
+  const { scraperName, combineInstallments } = await getParameters();
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
     const options = {
       companyId: scraperName,
       startDate: moment().startOf('month').subtract(4, 'month').toDate(),
+      combineInstallments,
       verbose: false,
     };
     let result;
@@ -51,7 +60,7 @@ export default async function () {
         return {
           Date: moment(txn.date).format('DD/MM/YYYY'),
           Payee: txn.description,
-          Outflow: txn.type !== 'installments' ? txn.chargedAmount : txn.originalAmount,
+          Outflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
           Installment: txn.installments ? txn.installments.number : null,
           Total: txn.installments ? txn.installments.total : null,
         };
