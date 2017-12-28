@@ -30,6 +30,22 @@ async function getParameters() {
   return result;
 }
 
+async function exportAccountData(scraperName, account, combineInstallments) {
+  console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
+  const txns = account.txns.map((txn) => {
+    return {
+      Date: moment(txn.date).format('DD/MM/YYYY'),
+      Payee: txn.description,
+      Outflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+      Installment: txn.installments ? txn.installments.number : null,
+      Total: txn.installments ? txn.installments.total : null,
+    };
+  });
+  const fields = ['Date', 'Payee', 'Outflow', 'Installment', 'Total'];
+  const csv = json2csv({ data: txns, fields, withBOM: true });
+  await writeFile(`${DOWNLOAD_FOLDER}/${scraperName} (${account.accountNumber}).csv`, csv);
+}
+
 export default async function () {
   const { scraperName, combineInstallments } = await getParameters();
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
@@ -54,21 +70,12 @@ export default async function () {
     }
     console.log(`success: ${result.success}`);
     if (result.success) {
-      console.log(`account #: ${result.accountNumber}`);
-      console.log(`number of txns: ${result.txns.length}`);
-      const txns = result.txns.map((txn) => {
-        return {
-          Date: moment(txn.date).format('DD/MM/YYYY'),
-          Payee: txn.description,
-          Outflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
-          Installment: txn.installments ? txn.installments.number : null,
-          Total: txn.installments ? txn.installments.total : null,
-        };
+      const exports = result.accounts.map((account) => {
+        return exportAccountData(scraperName, account, combineInstallments);
       });
-      const fields = ['Date', 'Payee', 'Outflow', 'Installment', 'Total'];
-      const csv = json2csv({ data: txns, fields, withBOM: true });
-      await writeFile(`${DOWNLOAD_FOLDER}/${scraperName}.csv`, csv);
-      console.log(`file saved: ${DOWNLOAD_FOLDER}/${scraperName}.csv`);
+      await Promise.all(exports);
+
+      console.log(`${result.accounts.length} csv files saved under ${DOWNLOAD_FOLDER}`);
     } else {
       console.log(`error type: ${result.errorType}`);
       console.log('error:', result.errorMessage);
