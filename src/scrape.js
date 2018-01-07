@@ -36,12 +36,12 @@ async function exportAccountData(scraperName, account, combineInstallments) {
     return {
       Date: moment(txn.date).format('DD/MM/YYYY'),
       Payee: txn.description,
-      Outflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+      Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
       Installment: txn.installments ? txn.installments.number : null,
       Total: txn.installments ? txn.installments.total : null,
     };
   });
-  const fields = ['Date', 'Payee', 'Outflow', 'Installment', 'Total'];
+  const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
   await writeFile(`${DOWNLOAD_FOLDER}/${scraperName} (${account.accountNumber}).csv`, csv);
 }
