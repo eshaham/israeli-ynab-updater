@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src",
-    "start": "node_modules/babel-cli/bin/babel-node.js src",
-    "credentials": "node_modules/babel-cli/bin/babel-node.js src -m credentials"
+    "start": "babel-node src",
+    "credentials": "babel-node src -m credentials"
   },
   "pre-commit": [
     "lint"
