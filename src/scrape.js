@@ -8,6 +8,15 @@ import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 
 async function getParameters() {
+  const startOfMonthMoment = moment().startOf('month');
+  const monthOptions = [];
+  for (let i = 0; i < 6; i += 1) {
+    const monthMoment = startOfMonthMoment.clone().subtract(i, 'month');
+    monthOptions.push({
+      name: monthMoment.format('ll'),
+      value: monthMoment,
+    });
+  }
   const result = await inquirer.prompt([
     {
       type: 'list',
@@ -25,6 +34,12 @@ async function getParameters() {
       name: 'combineInstallments',
       message: 'Combine installment transactions?',
       default: true,
+    },
+    {
+      type: 'list',
+      name: 'startDate',
+      message: 'What date would you like to start scraping from?',
+      choices: monthOptions,
     },
   ]);
   return result;
@@ -47,13 +62,13 @@ async function exportAccountData(scraperName, account, combineInstallments) {
 }
 
 export default async function () {
-  const { scraperName, combineInstallments } = await getParameters();
+  const { scraperName, combineInstallments, startDate } = await getParameters();
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
     const options = {
       companyId: scraperName,
-      startDate: moment().startOf('month').subtract(4, 'month').toDate(),
+      startDate: startDate.toDate(),
       combineInstallments,
       verbose: false,
     };
