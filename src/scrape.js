@@ -64,7 +64,7 @@ async function exportAccountData(scraperId, account, combineInstallments, saveLo
   });
   const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
-  await writeFile(`${saveLocation}/${scraperId} (${account.accountNumber}).csv`, csv);
+  await writeFile(`${saveLocation}/${SCRAPERS[scraperId].name} (${account.accountNumber}).csv`, csv);
 }
 
 export default async function () {
