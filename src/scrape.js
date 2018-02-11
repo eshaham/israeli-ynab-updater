@@ -20,7 +20,7 @@ async function getParameters(defaultSaveLocation) {
   const result = await inquirer.prompt([
     {
       type: 'list',
-      name: 'scraperName',
+      name: 'scraperId',
       message: 'Which bank would you like to scrape?',
       choices: Object.keys(SCRAPERS).map((id) => {
         return {
@@ -51,7 +51,7 @@ async function getParameters(defaultSaveLocation) {
   return result;
 }
 
-async function exportAccountData(scraperName, account, combineInstallments, saveLocation) {
+async function exportAccountData(scraperId, account, combineInstallments, saveLocation) {
   console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
   const txns = account.txns.map((txn) => {
     return {
@@ -64,7 +64,7 @@ async function exportAccountData(scraperName, account, combineInstallments, save
   });
   const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
-  await writeFile(`${saveLocation}/${scraperName} (${account.accountNumber}).csv`, csv);
+  await writeFile(`${saveLocation}/${SCRAPERS[scraperId].name} (${account.accountNumber}).csv`, csv);
 }
 
 export default async function () {
@@ -78,7 +78,7 @@ export default async function () {
     };
   }
   const {
-    scraperName,
+    scraperId,
     combineInstallments,
     startDate,
     saveLocation,
@@ -90,11 +90,11 @@ export default async function () {
     await writeJsonFile(SETTINGS_FILE, settings);
   }
 
-  const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
+  const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
     const options = {
-      companyId: scraperName,
+      companyId: scraperId,
       startDate: startDate.toDate(),
       combineInstallments,
       verbose: false,
@@ -103,7 +103,8 @@ export default async function () {
     try {
       const scraper = createScraper(options);
       scraper.onProgress((companyId, payload) => {
-        console.log(`${companyId}: ${payload.type}`);
+        const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
+        console.log(`${name}: ${payload.type}`);
       });
       result = await scraper.scrape(credentials);
     } catch (e) {
@@ -113,7 +114,7 @@ export default async function () {
     console.log(`success: ${result.success}`);
     if (result.success) {
       const exports = result.accounts.map((account) => {
-        return exportAccountData(scraperName, account, combineInstallments, saveLocation);
+        return exportAccountData(scraperId, account, combineInstallments, saveLocation);
       });
       await Promise.all(exports);
 
