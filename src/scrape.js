@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import json2csv from 'json2csv';
 
 import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
-import { verifyFolder, writeFile, readJsonFile, writeJsonFile } from './helpers/files';
+import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 
@@ -84,7 +84,6 @@ export default async function () {
     saveLocation,
   } = await getParameters(defaultSaveLocation);
 
-  await verifyFolder(saveLocation);
   if (saveLocation !== defaultSaveLocation) {
     settings.saveLocation = saveLocation;
     await writeJsonFile(SETTINGS_FILE, settings);
@@ -113,10 +112,9 @@ export default async function () {
     }
     console.log(`success: ${result.success}`);
     if (result.success) {
-      const exports = result.accounts.map((account) => {
-        return exportAccountData(scraperId, account, combineInstallments, saveLocation);
-      });
-      await Promise.all(exports);
+      for (let i = 0; i < result.accounts.length; i += 1) {
+        await exportAccountData(scraperId, result.accounts[i], combineInstallments, saveLocation);
+      }
 
       console.log(`${result.accounts.length} csv files saved under ${saveLocation}`);
     } else {
