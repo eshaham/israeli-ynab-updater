@@ -14,9 +14,9 @@ function validateNonEmpty(field, input) {
 }
 
 export default async function () {
-  const scraperNameResult = await inquirer.prompt([{
+  const scraperIdResult = await inquirer.prompt([{
     type: 'list',
-    name: 'scraperName',
+    name: 'scraperId',
     message: 'Which scraper would you like to save credentials for?',
     choices: Object.keys(SCRAPERS).map((id) => {
       return {
@@ -25,7 +25,7 @@ export default async function () {
       };
     }),
   }]);
-  const { loginFields } = SCRAPERS[scraperNameResult.scraperName];
+  const { loginFields } = SCRAPERS[scraperIdResult.scraperId];
   const questions = loginFields.map((field) => {
     return {
       type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
@@ -36,6 +36,6 @@ export default async function () {
   });
   const credentialsResult = await inquirer.prompt(questions);
   const encryptedCredentials = enryptCredentials(credentialsResult);
-  await writeJsonFile(`${CONFIG_FOLDER}/${scraperNameResult.scraperName}.json`, encryptedCredentials);
-  console.log(`credentials file saved for ${scraperNameResult.scraperName}`);
+  await writeJsonFile(`${CONFIG_FOLDER}/${scraperIdResult.scraperId}.json`, encryptedCredentials);
+  console.log(`credentials file saved for ${scraperIdResult.scraperId}`);
 }
