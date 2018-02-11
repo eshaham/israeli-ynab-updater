@@ -1,19 +1,11 @@
-import fs from 'fs';
 import moment from 'moment';
 import inquirer from 'inquirer';
 import json2csv from 'json2csv';
 
 import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
-import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
+import { verifyFolder, writeFile, readJsonFile, writeJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
-
-function validateFolder(path) {
-  if (fs.existsSync(path)) {
-    return true;
-  }
-  return 'folder does not exist';
-}
 
 async function getParameters(defaultSaveLocation) {
   const startOfMonthMoment = moment().startOf('month');
@@ -54,7 +46,6 @@ async function getParameters(defaultSaveLocation) {
       name: 'saveLocation',
       message: 'Save folder?',
       default: defaultSaveLocation,
-      validate: validateFolder,
     },
   ]);
   return result;
@@ -93,6 +84,7 @@ export default async function () {
     saveLocation,
   } = await getParameters(defaultSaveLocation);
 
+  await verifyFolder(saveLocation);
   if (saveLocation !== defaultSaveLocation) {
     settings.saveLocation = saveLocation;
     await writeJsonFile(SETTINGS_FILE, settings);

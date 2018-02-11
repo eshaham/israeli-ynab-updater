@@ -9,7 +9,7 @@ const makeDirAsync = util.promisify(fs.mkdir);
 const readJsonFileAsync = util.promisify(jsonfile.readFile);
 const writeJsonFileAsync = util.promisify(jsonfile.writeFile);
 
-async function verifyFolder(filePath) {
+export async function verifyFolder(filePath) {
   const folder = path.dirname(filePath);
   const exists = await existsAsync(folder);
   if (!exists) {
