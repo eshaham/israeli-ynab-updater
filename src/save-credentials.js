@@ -1,6 +1,7 @@
 import inquirer from 'inquirer';
 
-import { CONFIG_FOLDER, PASSWORD_FIELD } from './definitions';
+import PASSWORD_FIELD from './constants';
+import { CONFIG_FOLDER } from './definitions';
 import { SCRAPERS } from './helpers/scrapers';
 import { writeJsonFile } from './helpers/files';
 import { enryptCredentials } from './helpers/credentials';
