@@ -2,12 +2,12 @@ import moment from 'moment';
 import inquirer from 'inquirer';
 import json2csv from 'json2csv';
 
-import { CONFIG_FOLDER, DOWNLOAD_FOLDER } from './definitions';
-import { writeFile, readJsonFile } from './helpers/files';
+import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
+import { verifyFolder, writeFile, readJsonFile, writeJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 
-async function getParameters() {
+async function getParameters(defaultSaveLocation) {
   const startOfMonthMoment = moment().startOf('month');
   const monthOptions = [];
   for (let i = 0; i < 6; i += 1) {
@@ -41,11 +41,17 @@ async function getParameters() {
       message: 'What date would you like to start scraping from?',
       choices: monthOptions,
     },
+    {
+      type: 'input',
+      name: 'saveLocation',
+      message: 'Save folder?',
+      default: defaultSaveLocation,
+    },
   ]);
   return result;
 }
 
-async function exportAccountData(scraperName, account, combineInstallments) {
+async function exportAccountData(scraperName, account, combineInstallments, saveLocation) {
   console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
   const txns = account.txns.map((txn) => {
     return {
@@ -58,11 +64,32 @@ async function exportAccountData(scraperName, account, combineInstallments) {
   });
   const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
-  await writeFile(`${DOWNLOAD_FOLDER}/${scraperName} (${account.accountNumber}).csv`, csv);
+  await writeFile(`${saveLocation}/${scraperName} (${account.accountNumber}).csv`, csv);
 }
 
 export default async function () {
-  const { scraperName, combineInstallments, startDate } = await getParameters();
+  let defaultSaveLocation = DOWNLOAD_FOLDER;
+  let settings = await readJsonFile(SETTINGS_FILE);
+  if (settings) {
+    defaultSaveLocation = settings.saveLocation;
+  } else {
+    settings = {
+      saveLocation: defaultSaveLocation,
+    };
+  }
+  const {
+    scraperName,
+    combineInstallments,
+    startDate,
+    saveLocation,
+  } = await getParameters(defaultSaveLocation);
+
+  await verifyFolder(saveLocation);
+  if (saveLocation !== defaultSaveLocation) {
+    settings.saveLocation = saveLocation;
+    await writeJsonFile(SETTINGS_FILE, settings);
+  }
+
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
@@ -86,11 +113,11 @@ export default async function () {
     console.log(`success: ${result.success}`);
     if (result.success) {
       const exports = result.accounts.map((account) => {
-        return exportAccountData(scraperName, account, combineInstallments);
+        return exportAccountData(scraperName, account, combineInstallments, saveLocation);
       });
       await Promise.all(exports);
 
-      console.log(`${result.accounts.length} csv files saved under ${DOWNLOAD_FOLDER}`);
+      console.log(`${result.accounts.length} csv files saved under ${saveLocation}`);
     } else {
       console.log(`error type: ${result.errorType}`);
       console.log('error:', result.errorMessage);

@@ -39,4 +39,4 @@ Once you save the credentials for relevant scrapers, run the following command t
 npm start
 ```
 
-The CSV file should be created under `YNAB-Transactions` folder in your Downloads folder.
+The CSV file should be created under `Transactions` folder in your Downloads folder, unless you choose a different folder.
