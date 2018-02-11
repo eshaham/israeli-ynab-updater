@@ -103,7 +103,8 @@ export default async function () {
     try {
       const scraper = createScraper(options);
       scraper.onProgress((companyId, payload) => {
-        console.log(`${companyId}: ${payload.type}`);
+        const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
+        console.log(`${name}: ${payload.type}`);
       });
       result = await scraper.scrape(credentials);
     } catch (e) {
