@@ -52,7 +52,6 @@ async function getParameters(defaultSaveLocation) {
 }
 
 async function exportAccountData(scraperId, account, combineInstallments, saveLocation) {
-  console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
   const txns = account.txns.map((txn) => {
     return {
       Date: moment(txn.date).format('DD/MM/YYYY'),
@@ -112,11 +111,19 @@ export default async function () {
     }
     console.log(`success: ${result.success}`);
     if (result.success) {
+      let numFiles = 0;
       for (let i = 0; i < result.accounts.length; i += 1) {
-        await exportAccountData(scraperId, result.accounts[i], combineInstallments, saveLocation);
+        const account = result.accounts[i];
+        if (account.txns.length) {
+          console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
+          await exportAccountData(scraperId, account, combineInstallments, saveLocation);
+          numFiles += 1;
+        } else {
+          console.log(`no transactions for account # ${account.accountNumber}`);
+        }
       }
 
-      console.log(`${result.accounts.length} csv files saved under ${saveLocation}`);
+      console.log(`${numFiles} csv files saved under ${saveLocation}`);
     } else {
       console.log(`error type: ${result.errorType}`);
       console.log('error:', result.errorMessage);
