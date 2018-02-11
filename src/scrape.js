@@ -3,8 +3,8 @@ import moment from 'moment';
 import inquirer from 'inquirer';
 import json2csv from 'json2csv';
 
-import { CONFIG_FOLDER, DOWNLOAD_FOLDER } from './definitions';
-import { writeFile, readJsonFile } from './helpers/files';
+import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
+import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 
@@ -15,7 +15,7 @@ function validateFolder(path) {
   return 'folder does not exist';
 }
 
-async function getParameters() {
+async function getParameters(defaultSaveLocation) {
   const startOfMonthMoment = moment().startOf('month');
   const monthOptions = [];
   for (let i = 0; i < 6; i += 1) {
@@ -53,7 +53,7 @@ async function getParameters() {
       type: 'input',
       name: 'saveLocation',
       message: 'Save folder?',
-      default: DOWNLOAD_FOLDER,
+      default: defaultSaveLocation,
       validate: validateFolder,
     },
   ]);
@@ -77,12 +77,27 @@ async function exportAccountData(scraperName, account, combineInstallments, save
 }
 
 export default async function () {
+  let defaultSaveLocation = DOWNLOAD_FOLDER;
+  let settings = await readJsonFile(SETTINGS_FILE);
+  if (settings) {
+    defaultSaveLocation = settings.saveLocation;
+  } else {
+    settings = {
+      saveLocation: defaultSaveLocation,
+    };
+  }
   const {
     scraperName,
     combineInstallments,
     startDate,
     saveLocation,
-  } = await getParameters();
+  } = await getParameters(defaultSaveLocation);
+
+  if (saveLocation !== defaultSaveLocation) {
+    settings.saveLocation = saveLocation;
+    await writeJsonFile(SETTINGS_FILE, settings);
+  }
+
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperName}.json`);
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
