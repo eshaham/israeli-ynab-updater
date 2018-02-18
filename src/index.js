@@ -7,10 +7,16 @@ const args = yargs.options({
     alias: 'm',
     describe: 'mode for running',
   },
+  show: {
+    alias: 's',
+    describe: 'show browser while scraping',
+    type: 'boolean',
+    default: false,
+  },
 }).help().argv;
 
 if (!args.mode || args.mode === 'scrape') {
-  scrape();
+  scrape(args.show);
 } else if (args.mode === 'credentials') {
   saveCredentials();
 }

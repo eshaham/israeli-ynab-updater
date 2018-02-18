@@ -66,7 +66,7 @@ async function exportAccountData(scraperId, account, combineInstallments, saveLo
   await writeFile(`${saveLocation}/${SCRAPERS[scraperId].name} (${account.accountNumber}).csv`, csv);
 }
 
-export default async function () {
+export default async function (showBrowser) {
   let defaultSaveLocation = DOWNLOAD_FOLDER;
   let settings = await readJsonFile(SETTINGS_FILE);
   if (settings) {
@@ -95,6 +95,7 @@ export default async function () {
       companyId: scraperId,
       startDate: startDate.toDate(),
       combineInstallments,
+      showBrowser,
       verbose: false,
     };
     let result;
