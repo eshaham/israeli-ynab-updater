@@ -40,3 +40,9 @@ npm start
 ```
 
 The CSV file should be created under `Transactions` folder in your Downloads folder, unless you choose a different folder.
+
+You can also scrape in debug mode by running:
+
+```bash
+npm run start:debug
+```
