@@ -89,47 +89,53 @@ export default async function (showBrowser) {
   }
 
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
-  if (encryptedCredentials) {
-    const credentials = decryptCredentials(encryptedCredentials);
-    const options = {
-      companyId: scraperId,
-      startDate: startDate.toDate(),
-      combineInstallments,
-      showBrowser,
-      verbose: false,
-    };
-    let result;
-    try {
-      const scraper = createScraper(options);
-      scraper.onProgress((companyId, payload) => {
-        const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
-        console.log(`${name}: ${payload.type}`);
-      });
-      result = await scraper.scrape(credentials);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-    console.log(`success: ${result.success}`);
-    if (result.success) {
-      let numFiles = 0;
-      for (let i = 0; i < result.accounts.length; i += 1) {
-        const account = result.accounts[i];
-        if (account.txns.length) {
-          console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
-          await exportAccountData(scraperId, account, combineInstallments, saveLocation);
-          numFiles += 1;
-        } else {
-          console.log(`no transactions for account # ${account.accountNumber}`);
-        }
-      }
 
-      console.log(`${numFiles} csv files saved under ${saveLocation}`);
-    } else {
-      console.log(`error type: ${result.errorType}`);
-      console.log('error:', result.errorMessage);
-    }
-  } else {
+  if (!encryptedCredentials) {
     console.log('Could not find credentials file');
+    return;
   }
+
+  const credentials = decryptCredentials(encryptedCredentials);
+  const options = {
+    companyId: scraperId,
+    startDate: startDate.toDate(),
+    combineInstallments,
+    showBrowser,
+    verbose: false,
+  };
+
+  let result;
+  try {
+    const scraper = createScraper(options);
+    scraper.onProgress((companyId, payload) => {
+      const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
+      console.log(`${name}: ${payload.type}`);
+    });
+    result = await scraper.scrape(credentials);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+
+  console.log(`success: ${result.success}`);
+
+  if (!result.success) {
+    console.log(`error type: ${result.errorType}`);
+    console.log('error:', result.errorMessage);
+    return;
+  }
+
+  let numFiles = 0;
+  for (let i = 0; i < result.accounts.length; i += 1) {
+    const account = result.accounts[i];
+    if (account.txns.length) {
+      console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
+      await exportAccountData(scraperId, account, combineInstallments, saveLocation);
+      numFiles += 1;
+    } else {
+      console.log(`no transactions for account # ${account.accountNumber}`);
+    }
+  }
+
+  console.log(`${numFiles} csv files saved under ${saveLocation}`);
 }
