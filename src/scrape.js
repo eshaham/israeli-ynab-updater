@@ -5,7 +5,6 @@ import { flow, flatMap, reject, map, uniq } from 'lodash';
 
 import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
 import { writeFile, readJsonFile, writeJsonFile, readEncrypted } from './helpers/files';
-import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 import * as currency from './helpers/currency';
 import * as Rates from './helpers/rates';
@@ -98,12 +97,12 @@ export default async function (showBrowser) {
     await writeJsonFile(SETTINGS_FILE, settings);
   }
 
-  const [encryptedCredentials, oxrCredentials] = await Promise.all([
+  const [scraperCredentials, oxrCredentials] = await Promise.all([
     readEncrypted(`${CONFIG_FOLDER}/${scraperId}.json`),
     readEncrypted(`${CONFIG_FOLDER}/openexchangerates.json`),
   ]);
 
-  if (!encryptedCredentials) {
+  if (!scraperCredentials) {
     console.log('Could not find credentials file');
   }
 
@@ -112,7 +111,6 @@ export default async function (showBrowser) {
     console.log('You can get one for free by creating a new account at their site');
   }
 
-  const credentials = decryptCredentials(encryptedCredentials);
   const options = {
     companyId: scraperId,
     startDate: startDate.toDate(),
@@ -127,7 +125,7 @@ export default async function (showBrowser) {
       const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
       console.log(`${name}: ${payload.type}`);
     });
-    result = await scraper.scrape(credentials);
+    result = await scraper.scrape(scraperCredentials);
   } catch (e) {
     console.error(e);
     throw e;
