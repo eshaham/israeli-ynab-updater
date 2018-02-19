@@ -3,6 +3,8 @@ import path from 'path';
 import util from 'util';
 import jsonfile from 'jsonfile';
 
+import { decryptCredentials } from './credentials';
+
 const writeFileAsync = util.promisify(fs.writeFile);
 const existsAsync = util.promisify(fs.exists);
 const makeDirAsync = util.promisify(fs.mkdir);
@@ -33,4 +35,12 @@ export async function readJsonFile(filePath, options) {
 export async function writeJsonFile(filePath, obj, options) {
   await verifyFolder(filePath);
   await writeJsonFileAsync(filePath, obj, options);
+}
+
+export async function readEncrypted(filepath) {
+  const encryptedCredentials = await readJsonFile(filepath);
+
+  return (encryptedCredentials)
+    ? decryptCredentials(encryptedCredentials)
+    : null;
 }
