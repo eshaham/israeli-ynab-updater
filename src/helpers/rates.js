@@ -1,6 +1,5 @@
 import oxr from 'oxr';
 import moment from 'moment';
-import all from 'promise-all-map';
 
 import { readJsonFile, writeJsonFile } from '../helpers/files';
 
@@ -11,7 +10,7 @@ function asRateDate(date) {
 async function fetch(client, cache, dates) {
   const rates = await cache.read();
 
-  await all(dates, async (rawDate) => {
+  await Promise.all(dates.map(async (rawDate) => {
     const date = asRateDate(rawDate);
 
     if (!rates[date]) {
@@ -19,7 +18,7 @@ async function fetch(client, cache, dates) {
     }
 
     return rates[date];
-  });
+  }));
 
   await cache.write(rates);
 
