@@ -101,68 +101,66 @@ export default async function (showBrowser) {
   const encryptedScraperCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
   const encryptedOxrCredentials = await readJsonFile(`${CONFIG_FOLDER}/openexchangerates.json`);
 
-  if (!scraperCredentials) {
-    console.log('Could not find credentials file');
-  }
+  if (encryptedScraperCredentials && encryptedOxrCredentials) {
     const scraperCredentials = decryptCredentials(encryptedScraperCredentials);
     const oxrCredentials = decryptCredentials(encryptedOxrCredentials);
 
-  if (!oxrCredentials || !oxrCredentials.appId) {
-    console.log('Could not find app ID for openexchangerates.org');
-    console.log('You can get one for free by creating a new account at their site');
-  }
-
-  const options = {
-    companyId: scraperId,
-    startDate: startDate.toDate(),
-    combineInstallments,
-    showBrowser,
-    verbose: false,
-  };
-  let result;
-  try {
-    const scraper = createScraper(options);
-    scraper.onProgress((companyId, payload) => {
-      const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
-      console.log(`${name}: ${payload.type}`);
-    });
-    result = await scraper.scrape(scraperCredentials);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-  console.log(`success: ${result.success}`);
-  if (result.success) {
-    const ratesService = Rates.factory({
-      appId: oxrCredentials.appId,
-      cachePath: `${CONFIG_FOLDER}/rates.json`,
-    });
-
-    const extractDates = flow([
-      accounts => flatMap(accounts, 'txns'),
-      txns => reject(txns, { originalCurrency: 'ILS' }),
-      txns => map(txns, 'date'),
-      dates => uniq(dates),
-    ]);
-
-    const dates = extractDates(result.accounts);
-    const rates = await ratesService.fetch(dates);
-
-    let numFiles = 0;
-    for (let i = 0; i < result.accounts.length; i += 1) {
-      const account = result.accounts[i];
-      if (account.txns.length) {
-        console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
-        await exportAccountData(scraperId, account, combineInstallments, saveLocation, rates);
-        numFiles += 1;
-      } else {
-        console.log(`no transactions for account # ${account.accountNumber}`);
-      }
+    const options = {
+      companyId: scraperId,
+      startDate: startDate.toDate(),
+      combineInstallments,
+      showBrowser,
+      verbose: false,
+    };
+    let result;
+    try {
+      const scraper = createScraper(options);
+      scraper.onProgress((companyId, payload) => {
+        const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
+        console.log(`${name}: ${payload.type}`);
+      });
+      result = await scraper.scrape(scraperCredentials);
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
+    console.log(`success: ${result.success}`);
+    if (result.success) {
+      const ratesService = Rates.factory({
+        appId: oxrCredentials.appId,
+        cachePath: `${CONFIG_FOLDER}/rates.json`,
+      });
 
-    console.log(`${numFiles} csv files saved under ${saveLocation}`);
-  } else {
-    console.log(`error type: ${result.errorType}`);
-    console.log('error:', result.errorMessage);
+      const extractDates = flow([
+        accounts => flatMap(accounts, 'txns'),
+        txns => reject(txns, { originalCurrency: 'ILS' }),
+        txns => map(txns, 'date'),
+        dates => uniq(dates),
+      ]);
+
+      const dates = extractDates(result.accounts);
+      const rates = await ratesService.fetch(dates);
+
+      let numFiles = 0;
+      for (let i = 0; i < result.accounts.length; i += 1) {
+        const account = result.accounts[i];
+        if (account.txns.length) {
+          console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
+          await exportAccountData(scraperId, account, combineInstallments, saveLocation, rates);
+          numFiles += 1;
+        } else {
+          console.log(`no transactions for account # ${account.accountNumber}`);
+        }
+      }
+
+      console.log(`${numFiles} csv files saved under ${saveLocation}`);
+    } else {
+      console.log(`error type: ${result.errorType}`);
+      console.log('error:', result.errorMessage);
+    }
+  } else if (!encryptedScraperCredentials) {
+    console.log('Could not find credentials file');
+  } else if (!encryptedOxrCredentials) {
+    console.log('Could not find app ID for openexchangerates.org');
   }
 }
