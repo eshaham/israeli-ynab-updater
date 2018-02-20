@@ -1,11 +1,14 @@
 import moment from 'moment';
 import inquirer from 'inquirer';
 import json2csv from 'json2csv';
+import { flow, flatMap, reject, map, uniq } from 'lodash';
 
 import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
 import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
 import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
+import * as currency from './helpers/currency';
+import * as Rates from './helpers/rates';
 
 async function getParameters(defaultSaveLocation) {
   const startOfMonthMoment = moment().startOf('month');
@@ -51,17 +54,24 @@ async function getParameters(defaultSaveLocation) {
   return result;
 }
 
-async function exportAccountData(scraperId, account, combineInstallments, saveLocation) {
+async function exportAccountData(scraperId, account, combineInstallments, saveLocation, rates) {
   const txns = account.txns.map((txn) => {
+    const rate = Rates.select(rates, txn.date);
+    const isLocal = txn.originalCurrency === 'ILS';
+    const inflow = txn.type !== 'installments' || !combineInstallments
+      ? txn.chargedAmount
+      : txn.originalAmount;
+
     return {
       Date: moment(txn.date).format('DD/MM/YYYY'),
       Payee: txn.description,
-      Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+      Inflow: isLocal ? inflow : currency.convert(inflow, rate, txn.originalCurrency, 'ILS'),
       Installment: txn.installments ? txn.installments.number : null,
       Total: txn.installments ? txn.installments.total : null,
+      Memo: isLocal ? '' : currency.format(inflow, txn.originalCurrency),
     };
   });
-  const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
+  const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total', 'Memo'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
   await writeFile(`${saveLocation}/${SCRAPERS[scraperId].name} (${account.accountNumber}).csv`, csv);
 }
@@ -88,9 +98,13 @@ export default async function (showBrowser) {
     await writeJsonFile(SETTINGS_FILE, settings);
   }
 
-  const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
-  if (encryptedCredentials) {
-    const credentials = decryptCredentials(encryptedCredentials);
+  const encryptedScraperCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
+  const encryptedOxrCredentials = await readJsonFile(`${CONFIG_FOLDER}/openexchangerates.json`);
+
+  if (encryptedScraperCredentials && encryptedOxrCredentials) {
+    const scraperCredentials = decryptCredentials(encryptedScraperCredentials);
+    const oxrCredentials = decryptCredentials(encryptedOxrCredentials);
+
     const options = {
       companyId: scraperId,
       startDate: startDate.toDate(),
@@ -105,19 +119,34 @@ export default async function (showBrowser) {
         const name = SCRAPERS[companyId] ? SCRAPERS[companyId].name : companyId;
         console.log(`${name}: ${payload.type}`);
       });
-      result = await scraper.scrape(credentials);
+      result = await scraper.scrape(scraperCredentials);
     } catch (e) {
       console.error(e);
       throw e;
     }
     console.log(`success: ${result.success}`);
     if (result.success) {
+      const ratesService = Rates.factory({
+        appId: oxrCredentials.appId,
+        cachePath: `${CONFIG_FOLDER}/rates.json`,
+      });
+
+      const extractDates = flow([
+        accounts => flatMap(accounts, 'txns'),
+        txns => reject(txns, { originalCurrency: 'ILS' }),
+        txns => map(txns, 'date'),
+        dates => uniq(dates),
+      ]);
+
+      const dates = extractDates(result.accounts);
+      const rates = await ratesService.fetch(dates);
+
       let numFiles = 0;
       for (let i = 0; i < result.accounts.length; i += 1) {
         const account = result.accounts[i];
         if (account.txns.length) {
           console.log(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`);
-          await exportAccountData(scraperId, account, combineInstallments, saveLocation);
+          await exportAccountData(scraperId, account, combineInstallments, saveLocation, rates);
           numFiles += 1;
         } else {
           console.log(`no transactions for account # ${account.accountNumber}`);
@@ -129,7 +158,9 @@ export default async function (showBrowser) {
       console.log(`error type: ${result.errorType}`);
       console.log('error:', result.errorMessage);
     }
-  } else {
+  } else if (!encryptedScraperCredentials) {
     console.log('Could not find credentials file');
+  } else if (!encryptedOxrCredentials) {
+    console.log('Could not find app ID for openexchangerates.org');
   }
 }

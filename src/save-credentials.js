@@ -13,7 +13,7 @@ function validateNonEmpty(field, input) {
   return `${field} must be non empty`;
 }
 
-export default async function () {
+async function scraperSetup() {
   const scraperIdResult = await inquirer.prompt([{
     type: 'list',
     name: 'scraperId',
@@ -38,4 +38,37 @@ export default async function () {
   const encryptedCredentials = encryptCredentials(credentialsResult);
   await writeJsonFile(`${CONFIG_FOLDER}/${scraperIdResult.scraperId}.json`, encryptedCredentials);
   console.log(`credentials file saved for ${scraperIdResult.scraperId}`);
+}
+
+async function oxrSetup() {
+  const { appId } = await inquirer.prompt({
+    type: 'input',
+    name: 'appId',
+    message: 'Enter your openexchangerates.org app id (get one for free by creating a new account):',
+    validate: input => validateNonEmpty('app id', input),
+  });
+
+  const encryptedAppId = encryptCredentials({ appId });
+  await writeJsonFile(`${CONFIG_FOLDER}/openexchangerates.json`, encryptedAppId);
+  console.log('credentials file saved for openexchangerates.org');
+}
+
+export default async function () {
+  const { next } = await inquirer.prompt({
+    type: 'list',
+    name: 'next',
+    message: 'What would you like to setup?',
+    choices: [
+      {
+        name: 'Scrapers',
+        value: scraperSetup,
+      },
+      {
+        name: 'Currency Convention',
+        value: oxrSetup,
+      },
+    ],
+  });
+
+  await next();
 }
