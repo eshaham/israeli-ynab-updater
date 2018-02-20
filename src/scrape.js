@@ -4,7 +4,8 @@ import json2csv from 'json2csv';
 import { flow, flatMap, reject, map, uniq } from 'lodash';
 
 import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
-import { writeFile, readJsonFile, writeJsonFile, readEncrypted } from './helpers/files';
+import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
+import { decryptCredentials } from './helpers/credentials';
 import { SCRAPERS, createScraper } from './helpers/scrapers';
 import * as currency from './helpers/currency';
 import * as Rates from './helpers/rates';
@@ -97,14 +98,14 @@ export default async function (showBrowser) {
     await writeJsonFile(SETTINGS_FILE, settings);
   }
 
-  const [scraperCredentials, oxrCredentials] = await Promise.all([
-    readEncrypted(`${CONFIG_FOLDER}/${scraperId}.json`),
-    readEncrypted(`${CONFIG_FOLDER}/openexchangerates.json`),
-  ]);
+  const encryptedScraperCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
+  const encryptedOxrCredentials = await readJsonFile(`${CONFIG_FOLDER}/openexchangerates.json`);
 
   if (!scraperCredentials) {
     console.log('Could not find credentials file');
   }
+    const scraperCredentials = decryptCredentials(encryptedScraperCredentials);
+    const oxrCredentials = decryptCredentials(encryptedOxrCredentials);
 
   if (!oxrCredentials || !oxrCredentials.appId) {
     console.log('Could not find app ID for openexchangerates.org');
