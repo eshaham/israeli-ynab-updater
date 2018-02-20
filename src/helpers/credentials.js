@@ -1,6 +1,6 @@
 import { encrypt, decrypt } from './crypto';
 
-export function enryptCredentials(credentials) {
+export function encryptCredentials(credentials) {
   const encrypted = {};
   Object.keys(credentials).forEach((field) => {
     encrypted[field] = encrypt(credentials[field]);
