@@ -14,9 +14,9 @@ function validateNonEmpty(field, input) {
 }
 
 async function scraperSetup() {
-  const scraperNameResult = await inquirer.prompt([{
+  const scraperIdResult = await inquirer.prompt([{
     type: 'list',
-    name: 'scraperName',
+    name: 'scraperId',
     message: 'Which scraper would you like to save credentials for?',
     choices: Object.keys(SCRAPERS).map((id) => {
       return {
@@ -25,7 +25,7 @@ async function scraperSetup() {
       };
     }),
   }]);
-  const { loginFields } = SCRAPERS[scraperNameResult.scraperName];
+  const { loginFields } = SCRAPERS[scraperIdResult.scraperId];
   const questions = loginFields.map((field) => {
     return {
       type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
@@ -36,8 +36,8 @@ async function scraperSetup() {
   });
   const credentialsResult = await inquirer.prompt(questions);
   const encryptedCredentials = encryptCredentials(credentialsResult);
-  await writeJsonFile(`${CONFIG_FOLDER}/${scraperNameResult.scraperName}.json`, encryptedCredentials);
-  console.log(`credentials file saved for ${scraperNameResult.scraperName}`);
+  await writeJsonFile(`${CONFIG_FOLDER}/${scraperIdResult.scraperId}.json`, encryptedCredentials);
+  console.log(`credentials file saved for ${scraperIdResult.scraperId}`);
 }
 
 async function oxrSetup() {
