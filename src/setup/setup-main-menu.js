@@ -10,7 +10,7 @@ export default async function () {
     message: 'What would you like to setup?',
     choices: [
       {
-        name: 'Scrapers',
+        name: 'Individual Scrapers',
         value: setupScrapers,
       },
     ],

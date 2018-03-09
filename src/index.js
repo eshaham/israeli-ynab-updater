@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import scrape from './scrape';
+import scrape from './scrape/scrape-individual';
 import setupMainMenu from './setup/setup-main-menu';
 
 const args = yargs.options({
