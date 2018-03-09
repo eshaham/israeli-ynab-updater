@@ -8,7 +8,7 @@
     "lint": "eslint src",
     "start": "babel-node src",
     "start:debug": "npm start -- -s true",
-    "credentials": "npm start -- -m credentials"
+    "setup": "npm start -- -m setup"
   },
   "pre-commit": [
     "lint"
