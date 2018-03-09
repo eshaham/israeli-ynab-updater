@@ -1,10 +1,10 @@
 import inquirer from 'inquirer';
 
-import PASSWORD_FIELD from './constants';
-import { CONFIG_FOLDER } from './definitions';
-import { SCRAPERS } from './helpers/scrapers';
-import { writeJsonFile } from './helpers/files';
-import { encryptCredentials } from './helpers/credentials';
+import PASSWORD_FIELD from '../constants';
+import { CONFIG_FOLDER } from '../definitions';
+import { SCRAPERS } from '../helpers/scrapers';
+import { writeJsonFile } from '../helpers/files';
+import { encryptCredentials } from '../helpers/credentials';
 
 function validateNonEmpty(field, input) {
   if (input) {

@@ -29,8 +29,10 @@ The credentials for each scraper are encrypted and saved in an dedicated file on
 To save credentials for a specific scraper, run the following command and choose the scraper:
 
 ```bash
-npm run credentials
+npm run setup
 ```
+
+When asked 'What would you like to setup?' choose 'Scrapers'.
 
 ### Scraping
 Once you save the credentials for relevant scrapers, run the following command to start scraping:
