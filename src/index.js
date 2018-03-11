@@ -1,6 +1,6 @@
 import yargs from 'yargs';
-import scrape from './scrape';
-import saveCredentials from './save-credentials';
+import scrape from './scrape/scrape-individual';
+import setupMainMenu from './setup/setup-main-menu';
 
 const args = yargs.options({
   mode: {
@@ -17,6 +17,6 @@ const args = yargs.options({
 
 if (!args.mode || args.mode === 'scrape') {
   scrape(args.show);
-} else if (args.mode === 'credentials') {
-  saveCredentials();
+} else if (args.mode === 'setup') {
+  setupMainMenu();
 }
