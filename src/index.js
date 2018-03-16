@@ -1,6 +1,6 @@
 import yargs from 'yargs';
-import scrape from './scrape/scrape-individual';
 import setupMainMenu from './setup/setup-main-menu';
+import scrapeMainMenu from './scrape/scrape-main-menu';
 
 const args = yargs.options({
   mode: {
@@ -16,7 +16,7 @@ const args = yargs.options({
 }).help().argv;
 
 if (!args.mode || args.mode === 'scraping') {
-  scrape(args.show);
+  scrapeMainMenu(args.show);
 } else if (args.mode === 'setup') {
   setupMainMenu();
 }

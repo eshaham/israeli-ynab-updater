@@ -62,3 +62,6 @@ lib/
 
 # OS related
 .DS_Store
+
+# IDEs
+.idea

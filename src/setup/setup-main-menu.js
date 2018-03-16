@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 
+import setupTask from './setup-task';
 import setupScrapers from './setup-scrapers';
 
 
@@ -12,6 +13,10 @@ export default async function () {
       {
         name: 'Individual Scrapers',
         value: setupScrapers,
+      },
+      {
+        name: 'Tasks',
+        value: setupTask,
       },
     ],
   });
