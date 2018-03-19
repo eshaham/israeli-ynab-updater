@@ -1,5 +1,5 @@
 # Israeli YNAB Updater
-A tool for updating YNAB using israeli-bank-scrapers
+A tool for updating YNAB using for the Israeli market. This tool uses [Israeli Banks Scrapers](https://github.com/eshaham/israeli-bank-scrapers) project as the source of fetching account data.
 
 ## Getting started
 
