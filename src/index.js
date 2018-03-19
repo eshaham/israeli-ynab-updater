@@ -1,6 +1,13 @@
 import yargs from 'yargs';
+import colors from 'colors/safe';
 import setupMainMenu from './setup/setup-main-menu';
 import scrapeMainMenu from './scrape/scrape-main-menu';
+
+// set theme
+colors.setTheme({
+  title: 'bgCyan',
+  notify: 'magenta',
+});
 
 const args = yargs.options({
   mode: {

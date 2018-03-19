@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
 
-import setupTask from './setup-task';
+import setupTask from './tasks/setup-task';
 import setupScrapers from './setup-scrapers';
 
 export default async function () {
@@ -14,7 +14,7 @@ export default async function () {
         value: 'scraper',
       },
       {
-        name: 'Setup a new tasks',
+        name: 'Setup a new task',
         value: 'task',
       },
     ],
@@ -22,10 +22,10 @@ export default async function () {
 
   switch (setupType) {
     case 'scraper':
-      setupScrapers();
+      await setupScrapers();
       break;
     case 'task':
-      setupTask();
+      await setupTask();
       break;
     default:
       break;
