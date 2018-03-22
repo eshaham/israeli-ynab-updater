@@ -2,10 +2,11 @@ import moment from 'moment';
 import inquirer from 'inquirer';
 import json2csv from 'json2csv';
 
-import { CONFIG_FOLDER, SETTINGS_FILE, DOWNLOAD_FOLDER } from './definitions';
-import { writeFile, readJsonFile, writeJsonFile } from './helpers/files';
-import { decryptCredentials } from './helpers/credentials';
-import { SCRAPERS, createScraper } from './helpers/scrapers';
+import { CONFIG_FOLDER } from '../definitions';
+import { writeFile, readJsonFile } from '../helpers/files';
+import { decryptCredentials } from '../helpers/credentials';
+import { SCRAPERS, createScraper } from '../helpers/scrapers';
+import { readSettingsFile, writeSettingsFile } from '../helpers/settings';
 
 async function getParameters(defaultSaveLocation) {
   const startOfMonthMoment = moment().startOf('month');
@@ -72,25 +73,17 @@ async function exportAccountData(scraperId, account, combineInstallments, saveLo
 }
 
 export default async function (showBrowser) {
-  let defaultSaveLocation = DOWNLOAD_FOLDER;
-  let settings = await readJsonFile(SETTINGS_FILE);
-  if (settings) {
-    defaultSaveLocation = settings.saveLocation;
-  } else {
-    settings = {
-      saveLocation: defaultSaveLocation,
-    };
-  }
+  const settings = await readSettingsFile();
   const {
     scraperId,
     combineInstallments,
     startDate,
     saveLocation,
-  } = await getParameters(defaultSaveLocation);
+  } = await getParameters(settings.saveLocation);
 
-  if (saveLocation !== defaultSaveLocation) {
+  if (saveLocation !== settings.saveLocation) {
     settings.saveLocation = saveLocation;
-    await writeJsonFile(SETTINGS_FILE, settings);
+    await writeSettingsFile(settings);
   }
 
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);

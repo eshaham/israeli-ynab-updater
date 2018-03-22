@@ -1,5 +1,5 @@
 # Israeli YNAB Updater
-A tool for updating YNAB using israeli-bank-scrapers
+A tool for updating YNAB using for the Israeli market. This tool uses [Israeli Banks Scrapers](https://github.com/eshaham/israeli-bank-scrapers) project as the source of fetching account data.
 
 ## Getting started
 
@@ -29,8 +29,10 @@ The credentials for each scraper are encrypted and saved in an dedicated file on
 To save credentials for a specific scraper, run the following command and choose the scraper:
 
 ```bash
-npm run credentials
+npm run setup
 ```
+
+When asked 'What would you like to setup?' choose 'Scrapers'.
 
 ### Scraping
 Once you save the credentials for relevant scrapers, run the following command to start scraping:
