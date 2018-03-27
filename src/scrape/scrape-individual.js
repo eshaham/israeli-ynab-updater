@@ -53,15 +53,20 @@ async function getParameters(defaultSaveLocation) {
 }
 
 async function exportAccountData(scraperId, account, combineInstallments, saveLocation) {
-  const txns = account.txns.map((txn) => {
-    return {
-      Date: moment(txn.date).format('DD/MM/YYYY'),
-      Payee: txn.description,
-      Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
-      Installment: txn.installments ? txn.installments.number : null,
-      Total: txn.installments ? txn.installments.total : null,
-    };
-  });
+  const txns = account.txns
+    // Exclude transactions that may change in the future,
+    // and keep transactions that don't have `status` prop.
+    .filter(txn => (txn.status ? txn.status !== 'pending' : true))
+    .map((txn) => {
+      return {
+        Date: moment(txn.date).format('DD/MM/YYYY'),
+        Payee: txn.description,
+        Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+        Installment: txn.installments ? txn.installments.number : null,
+        Total: txn.installments ? txn.installments.total : null,
+      };
+    });
+
   const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
   const csv = json2csv({ data: txns, fields, withBOM: true });
   await writeFile(`${saveLocation}/${SCRAPERS[scraperId].name} (${account.accountNumber}).csv`, csv);
