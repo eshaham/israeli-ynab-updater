@@ -29,7 +29,6 @@ export async function getFolderFiles(folderPath, suffix) {
   if (suffix) {
     return files.filter(filePath => (path.extname(filePath) || '').toLowerCase() === suffix.toLowerCase());
   }
-
   return files;
 }
 
@@ -37,7 +36,6 @@ export async function deleteFile(filePath) {
   if (await existsAsync(filePath)) {
     return deleteFileAsync(filePath);
   }
-
   return null;
 }
 

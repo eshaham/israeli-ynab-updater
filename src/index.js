@@ -22,7 +22,7 @@ const args = yargs.options({
   },
 }).help().argv;
 
-if (!args.mode || args.mode === 'scraping') {
+if (!args.mode || args.mode === 'scrape') {
   scrapeMainMenu(args.show);
 } else if (args.mode === 'setup') {
   setupMainMenu();
