@@ -1,14 +1,8 @@
 import moment from 'moment';
 import { SCRAPERS, createScraper } from '../helpers/scrapers';
 
-async function prepareResults(scraperId, scraperName, scraperResult, options) {
-  const result = [];
-  const {
-    combineInstallments,
-  } = options;
-
-  for (let i = 0; i < scraperResult.accounts.length; i += 1) {
-    const account = scraperResult.accounts[i];
+async function prepareResults(scraperId, scraperName, scraperResult, combineInstallments) {
+  return scraperResult.accounts.map((account) => {
     console.log(`${scraperName}: scraped ${account.txns.length} transactions from account ${account.accountNumber}`);
 
     const txns = account.txns.map((txn) => {
@@ -23,15 +17,13 @@ async function prepareResults(scraperId, scraperName, scraperResult, options) {
       };
     });
 
-    result.push({
+    return {
       scraperId,
       scraperName,
       accountNumber: account.accountNumber,
       txns,
-    });
-  }
-
-  return result;
+    };
+  });
 }
 
 export default async function (scraperId, credentials, options) {
@@ -75,5 +67,5 @@ export default async function (scraperId, credentials, options) {
     throw new Error(scraperResult.errorMessage);
   }
 
-  return prepareResults(scraperId, scraperName, scraperResult, options);
+  return prepareResults(scraperId, scraperName, scraperResult, combineInstallments);
 }

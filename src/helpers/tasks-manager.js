@@ -5,12 +5,14 @@ import { writeJsonFile, readJsonFile, getFolderFiles, deleteFile } from '../help
 import { TASKS_FOLDER } from '../definitions';
 import { SCRAPERS } from '../helpers/scrapers';
 
+function writeSummaryLine(key, value) {
+  console.log(`- ${colors.bold(key)}: ${value}`);
+}
 
 class TaskManager {
   async getTasksList() {
     const files = await getFolderFiles(TASKS_FOLDER, '.json');
     const result = files.map(file => path.basename(file, '.json'));
-    result.sort();
     return result;
   }
 
@@ -25,7 +27,7 @@ class TaskManager {
   }
 
   async loadTask(taskName) {
-    if (taskName && this.isValidTaskName(taskName)) {
+    if (taskName && this.hasTask(taskName)) {
       return readJsonFile(`${TASKS_FOLDER}/${taskName}.json`);
     }
 
@@ -41,15 +43,11 @@ class TaskManager {
   }
 
   async deleteTask(taskName) {
-    if (taskName && this.isValidTaskName(taskName)) {
+    if (taskName && this.hasTask(taskName)) {
       await deleteFile(`${TASKS_FOLDER}/${taskName}.json`);
     } else {
       throw new Error(`invalid task name provided ${taskName}`);
     }
-  }
-
-  _writeSummaryLine(key, value) {
-    console.log(`- ${colors.bold(key)}: ${value}`);
   }
 
   async printTaskSummary(taskName) {
@@ -66,14 +64,14 @@ class TaskManager {
         saveLocation,
       } = taskData.output;
       const substractValue = dateDiffByMonth - 1;
-      const startDate = moment().subtract(substractValue, 'month').startOf('month');
+      const startMoment = moment().subtract(substractValue, 'month').startOf('month');
 
       console.log(colors.underline.bold(`Task ${taskName} Summary`));
-      this._writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
-      this._writeSummaryLine('Start scraping from', startDate.format('ll'));
-      this._writeSummaryLine('Combine installments', combineInstallments ? 'yes' : 'no');
-      this._writeSummaryLine('Save to location', saveLocation);
-      this._writeSummaryLine('Create single report', combineReport ? 'yes' : 'no');
+      writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
+      writeSummaryLine('Start scraping from', startMoment.format('ll'));
+      writeSummaryLine('Combine installments', combineInstallments ? 'yes' : 'no');
+      writeSummaryLine('Save to location', saveLocation);
+      writeSummaryLine('Create single report', combineReport ? 'yes' : 'no');
     }
   }
 }

@@ -1,2 +1,3 @@
 const PASSWORD_FIELD = 'password';
-export default PASSWORD_FIELD;
+const DATE_AND_TIME_MOMENT_FORMAT = 'DD-MM-YYYY_HH-mm-ss';
+export { PASSWORD_FIELD, DATE_AND_TIME_MOMENT_FORMAT };

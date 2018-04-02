@@ -1,6 +1,7 @@
 import moment from 'moment';
 import inquirer from 'inquirer';
 import colors from 'colors/safe';
+import { DATE_AND_TIME_MOMENT_FORMAT } from '../constants';
 import { decryptCredentials } from '../helpers/credentials';
 import scrape from './scrape-base';
 import tasksManager from '../helpers/tasks-manager';
@@ -56,8 +57,8 @@ export default async function (showBrowser) {
       saveLocation: saveLocationRootPath,
     } = taskData.output;
     const substractValue = dateDiffByMonth - 1;
-    const startDate = moment().subtract(substractValue, 'month').startOf('month');
-    const scrapedAccounts = [];
+    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
+    const reportAccounts = [];
 
     console.log(colors.title('Run task scrapers'));
 
@@ -67,14 +68,15 @@ export default async function (showBrowser) {
 
       const options = {
         companyId: scraperOfTask.id,
-        startDate,
+        startDate: startMoment,
         combineInstallments,
         showBrowser,
         verbose: false,
       };
 
       try {
-        scrapedAccounts.push(...await scrape(scraperOfTask.id, credentials, options));
+        const scrapedAccounts = await scrape(scraperOfTask.id, credentials, options);
+        reportAccounts.push(...scrapedAccounts);
       } catch (e) {
         console.log('error:', e.message);
         process.exit(1);
@@ -85,12 +87,11 @@ export default async function (showBrowser) {
 
     if (combineReport) {
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}`;
-      await generateSingleReport(scrapedAccounts, saveLocation);
+      await generateSingleReport(reportAccounts, saveLocation);
     } else {
-      const currentExecutionFolder = moment().format('DD-MM-YYYY_HH-mm-ss');
+      const currentExecutionFolder = moment().format(DATE_AND_TIME_MOMENT_FORMAT);
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}/${currentExecutionFolder}`;
-      await
-      generateSeparatedReports(scrapedAccounts, saveLocation);
+      await generateSeparatedReports(reportAccounts, saveLocation);
     }
   }
 }

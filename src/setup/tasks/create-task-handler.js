@@ -4,21 +4,21 @@ import { DOWNLOAD_FOLDER } from '../../definitions';
 import ModifyTaskHandler from './modify-task-handler';
 import tasksManager from '../../helpers/tasks-manager';
 
-export default class {
-  _createEmptyTaskData() {
-    return {
-      scrapers: [],
-      options: {
-        combineInstallments: false,
-        dateDiffByMonth: 3,
-      },
-      output: {
-        saveLocation: DOWNLOAD_FOLDER,
-        combineReport: true,
-      },
-    };
-  }
+function createEmptyTaskData() {
+  return {
+    scrapers: [],
+    options: {
+      combineInstallments: false,
+      dateDiffByMonth: 3,
+    },
+    output: {
+      saveLocation: DOWNLOAD_FOLDER,
+      combineReport: true,
+    },
+  };
+}
 
+export default class {
   async run() {
     const answers = await inquirer.prompt([
       {
@@ -48,7 +48,7 @@ export default class {
     const taskName = answers.name;
 
     if (taskName) {
-      const taskData = this._createEmptyTaskData();
+      const taskData = createEmptyTaskData();
       await tasksManager.saveTask(taskName, taskData);
       const modifyTaskAdapter = new ModifyTaskHandler(taskName);
       console.log(colors.notify(`Task named ${taskName}' created`));

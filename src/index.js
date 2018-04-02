@@ -1,7 +1,7 @@
 import yargs from 'yargs';
 import colors from 'colors/safe';
 import setupMainMenu from './setup/setup-main-menu';
-import scrapeMainMenu from './scrape/scrape-main-menu';
+import scrapingMainMenu from './scrape/scraping-main-menu';
 
 // set theme
 colors.setTheme({
@@ -23,7 +23,7 @@ const args = yargs.options({
 }).help().argv;
 
 if (!args.mode || args.mode === 'scrape') {
-  scrapeMainMenu(args.show);
+  scrapingMainMenu(args.show);
 } else if (args.mode === 'setup') {
   setupMainMenu();
 }
