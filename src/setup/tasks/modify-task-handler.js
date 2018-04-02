@@ -249,8 +249,12 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           {
             type: 'list',
             name: 'action',
-            message: 'What do you want to update?',
+            message: 'What do you want to do?',
             choices: [
+              {
+                name: 'View task summary',
+                value: 'summary',
+              },
               {
                 name: 'Update scrapers list',
                 value: 'scrapers',
@@ -265,6 +269,12 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         ]);
 
         switch (answers.action) {
+          case 'summary':
+            console.log(''); // print empty line
+            await tasksManager.printTaskSummary(_private.get(this).taskName);
+            console.log(''); // print empty line
+            await this.run();
+            break;
           case 'scrapers':
             await this.manageScrapers();
             await this.run();
