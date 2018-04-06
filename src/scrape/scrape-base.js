@@ -7,13 +7,13 @@ async function prepareResults(scraperId, scraperName, scraperResult, combineInst
 
     const txns = account.txns.map((txn) => {
       return {
-        Company: scraperName,
-        Account: account.accountNumber,
-        Date: moment(txn.date).format('DD/MM/YYYY'),
-        Payee: txn.description,
-        Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
-        Installment: txn.installments ? txn.installments.number : null,
-        Total: txn.installments ? txn.installments.total : null,
+        company: scraperName,
+        account: account.accountNumber,
+        dateMoment: moment(txn.date),
+        payee: txn.description,
+        amount: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+        installment: txn.installments ? txn.installments.number : null,
+        total: txn.installments ? txn.installments.total : null,
       };
     });
 

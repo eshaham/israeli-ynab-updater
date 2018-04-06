@@ -5,10 +5,40 @@ import { DATE_AND_TIME_MOMENT_FORMAT } from '../constants';
 import { writeFile } from '../helpers/files';
 
 function getReportFields(isSingleReport) {
-  const result = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
+  const result = [
+    {
+      label: 'Date',
+      value: row => row.dateMoment.format('DD/MM/YYYY'),
+    },
+    {
+      label: 'Payee',
+      value: 'payee',
+    },
+    {
+      label: 'Inflow',
+      value: 'amount',
+    },
+    {
+      label: 'Installment',
+      value: 'installment',
+    },
+    {
+      label: 'Total',
+      value: 'total',
+    },
+  ];
 
   if (isSingleReport) {
-    result.unshift('Company', 'Account');
+    result.unshift(
+      {
+        label: 'Company',
+        value: 'company',
+      },
+      {
+        label: 'Account',
+        value: 'account',
+      },
+    );
   }
 
   return result;
