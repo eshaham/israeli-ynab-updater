@@ -56,8 +56,7 @@ export default async function (showBrowser) {
       combineReport,
       saveLocation: saveLocationRootPath,
     } = taskData.output;
-    const substractValue = dateDiffByMonth - 1;
-    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
+    const startMoment = moment().subtract(dateDiffByMonth, 'month').startOf('month');
     const reportAccounts = [];
 
     console.log(colors.title('Run task scrapers'));
