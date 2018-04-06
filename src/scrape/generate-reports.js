@@ -4,8 +4,18 @@ import moment from 'moment';
 import { DATE_AND_TIME_MOMENT_FORMAT } from '../constants';
 import { writeFile } from '../helpers/files';
 
+function getReportFields(isSingleReport) {
+  const result = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
+
+  if (isSingleReport) {
+    result.unshift('Company', 'Account');
+  }
+
+  return result;
+}
+
 async function exportAccountData(account, saveLocation) {
-  const fields = ['Date', 'Payee', 'Inflow', 'Installment', 'Total'];
+  const fields = getReportFields(false);
   const csv = json2csv({ data: account.txns, fields, withBOM: true });
   await writeFile(`${saveLocation}/${account.scraperName} (${account.accountNumber}).csv`, csv);
 }
@@ -32,8 +42,8 @@ export async function generateSingleReport(scrapedAccounts, saveLocation) {
     return acc;
   }, []);
   const filePath = `${saveLocation}/${moment().format(DATE_AND_TIME_MOMENT_FORMAT)}.csv`;
-  const fileFields = ['Institute', 'Account', 'Date', 'Payee', 'Inflow', 'Installment', 'Total'];
-  const fileContent = json2csv({ data: fileTransactions, fileFields, withBOM: true });
+  const fileFields = getReportFields(true);
+  const fileContent = json2csv({ data: fileTransactions, fields: fileFields, withBOM: true });
   await writeFile(filePath, fileContent);
   console.log(colors.notify(`created file ${filePath}`));
 }

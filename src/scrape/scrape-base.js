@@ -8,7 +8,7 @@ async function prepareResults(scraperId, scraperName, scraperResult, combineInst
     const txns = account.txns.map((txn) => {
       return {
         Company: scraperName,
-        AccountNumber: account.accountNumber,
+        Account: account.accountNumber,
         Date: moment(txn.date).format('DD/MM/YYYY'),
         Payee: txn.description,
         Inflow: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
