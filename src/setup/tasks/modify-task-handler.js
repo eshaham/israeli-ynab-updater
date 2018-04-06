@@ -65,6 +65,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       const {
         saveLocation,
         combineReport,
+        excludeFutureTransactions,
       } = _private.get(this).taskData.output;
 
       const answers = await inquirer.prompt([
@@ -108,7 +109,13 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           type: 'confirm',
           name: 'combineReport',
           message: 'Combine all accounts into a single report?',
-          default: combineReport,
+          default: !!combineReport,
+        },
+        {
+          type: 'confirm',
+          name: 'excludeFutureTransactions',
+          message: 'exclude future transactions?',
+          default: !!excludeFutureTransactions,
         },
       ]);
 
@@ -116,6 +123,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       _private.get(this).taskData.options.dateDiffByMonth = answers.dateDiffByMonth;
       _private.get(this).taskData.output.saveLocation = answers.saveLocation;
       _private.get(this).taskData.output.combineReport = answers.combineReport;
+      _private.get(this).taskData.output.excludeFutureTransactions =
+        answers.excludeFutureTransactions;
       console.log(colors.notify('Changes saved'));
       await this.saveTask();
     }

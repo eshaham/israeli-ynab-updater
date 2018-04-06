@@ -55,6 +55,7 @@ export default async function (showBrowser) {
     const {
       combineReport,
       saveLocation: saveLocationRootPath,
+      excludeFutureTransactions,
     } = taskData.output;
     const startMoment = moment().subtract(dateDiffByMonth, 'month').startOf('month');
     const reportAccounts = [];
@@ -82,8 +83,21 @@ export default async function (showBrowser) {
       }
     }
 
-    console.log(colors.title('Save generated report'));
+    console.log(colors.notify('Exclude undesired transactions'));
+    if (excludeFutureTransactions) {
+      const nowMoment = moment();
+      for (let i = 0; i < reportAccounts.length; i += 1) {
+        const account = reportAccounts[i];
+        if (account.txns) {
+          account.txns = account.txns.filter((txn) => {
+            const txnMoment = moment(txn.dateMoment);
+            return txnMoment.isSameOrBefore(nowMoment, 'day');
+          });
+        }
+      }
+    }
 
+    console.log(colors.notify('Save generated report'));
     if (combineReport) {
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}`;
       await generateSingleReport(reportAccounts, saveLocation);

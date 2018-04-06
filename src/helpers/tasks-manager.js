@@ -62,6 +62,7 @@ class TaskManager {
       const {
         combineReport,
         saveLocation,
+        excludeFutureTransactions,
       } = taskData.output;
       const startMoment = moment().subtract(dateDiffByMonth, 'month').startOf('month');
 
@@ -71,6 +72,7 @@ class TaskManager {
       writeSummaryLine('Combine installments', combineInstallments ? 'yes' : 'no');
       writeSummaryLine('Save to location', saveLocation);
       writeSummaryLine('Create single report', combineReport ? 'yes' : 'no');
+      writeSummaryLine('Exclude future Transactions', excludeFutureTransactions ? 'yes' : 'no');
     }
   }
 }
