@@ -64,7 +64,8 @@ class TaskManager {
         saveLocation,
         excludeFutureTransactions,
       } = taskData.output;
-      const startMoment = moment().subtract(dateDiffByMonth, 'month').startOf('month');
+      const substractValue = dateDiffByMonth - 1;
+      const startMoment = moment().subtract(substractValue, 'month').startOf('month');
 
       console.log(colors.underline.bold(`Task ${taskName} Summary`));
       writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));

@@ -57,7 +57,8 @@ export default async function (showBrowser) {
       saveLocation: saveLocationRootPath,
       excludeFutureTransactions,
     } = taskData.output;
-    const startMoment = moment().subtract(dateDiffByMonth, 'month').startOf('month');
+    const substractValue = dateDiffByMonth - 1;
+    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
     const reportAccounts = [];
 
     console.log(colors.title('Run task scrapers'));
