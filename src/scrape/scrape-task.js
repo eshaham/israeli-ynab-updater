@@ -99,7 +99,6 @@ export default async function (showBrowser) {
       }
     }
 
-    console.log(colors.notify('Save generated report'));
     if (combineReport) {
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}`;
       await generateSingleReport(reportAccounts, saveLocation);
