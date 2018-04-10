@@ -48,17 +48,11 @@ export default async function (scraperId, credentials, options) {
   }
   console.log(`scraping ${scraperName}`);
 
-  let scraperResult;
-  try {
-    const scraper = createScraper(scraperOptions);
-    scraper.onProgress((companyId, payload) => {
-      console.log(`${scraperName}: ${payload.type}`);
-    });
-    scraperResult = await scraper.scrape(credentials);
-  } catch (e) {
-    console.error(e.message);
-    throw e;
-  }
+  const scraper = createScraper(scraperOptions);
+  scraper.onProgress((companyId, payload) => {
+    console.log(`${scraperName}: ${payload.type}`);
+  });
+  const scraperResult = await scraper.scrape(credentials);
 
   console.log(`success: ${scraperResult.success}`);
   if (!scraperResult.success) {

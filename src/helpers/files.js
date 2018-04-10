@@ -33,10 +33,7 @@ export async function getFolderFiles(folderPath, suffix) {
 }
 
 export async function deleteFile(filePath) {
-  if (await existsAsync(filePath)) {
-    return deleteFileAsync(filePath);
-  }
-  return null;
+  return deleteFileAsync(filePath);
 }
 
 export async function writeFile(filePath, data, options) {

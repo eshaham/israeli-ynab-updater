@@ -1,11 +1,13 @@
 import moment from 'moment';
 import inquirer from 'inquirer';
 import colors from 'colors/safe';
-import { DATE_AND_TIME_MOMENT_FORMAT } from '../constants';
+import { DATE_TIME_FORMAT } from '../constants';
 import { decryptCredentials } from '../helpers/credentials';
 import scrape from './scrape-base';
-import tasksManager from '../helpers/tasks-manager';
+import { TasksManager, printTaskSummary } from '../helpers/tasks';
 import { generateSingleReport, generateSeparatedReports } from './generate-reports';
+
+const tasksManager = new TasksManager();
 
 async function getParameters() {
   const availableTasks = await tasksManager.getTasksList();
@@ -30,7 +32,7 @@ async function getParameters() {
   }
 
   console.log(colors.notify('No tasks created, please run command \'npm run setup\' to create a task'));
-  return null;
+  return { taskName: null };
 }
 
 export default async function (showBrowser) {
@@ -46,7 +48,7 @@ export default async function (showBrowser) {
       return;
     }
 
-    await tasksManager.printTaskSummary(taskName);
+    printTaskSummary(taskData);
 
     const {
       dateDiffByMonth,
@@ -55,7 +57,7 @@ export default async function (showBrowser) {
     const {
       combineReport,
       saveLocation: saveLocationRootPath,
-      excludeFutureTransactions,
+      includeFutureTransactions,
     } = taskData.output;
     const substractValue = dateDiffByMonth - 1;
     const startMoment = moment().subtract(substractValue, 'month').startOf('month');
@@ -79,13 +81,12 @@ export default async function (showBrowser) {
         const scrapedAccounts = await scrape(scraperOfTask.id, credentials, options);
         reportAccounts.push(...scrapedAccounts);
       } catch (e) {
-        console.log('error:', e.message);
-        process.exit(1);
+        console.error(e);
+        throw e;
       }
     }
 
-    console.log(colors.notify('Exclude undesired transactions'));
-    if (excludeFutureTransactions) {
+    if (includeFutureTransactions) {
       const nowMoment = moment();
       for (let i = 0; i < reportAccounts.length; i += 1) {
         const account = reportAccounts[i];
@@ -103,7 +104,7 @@ export default async function (showBrowser) {
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}`;
       await generateSingleReport(reportAccounts, saveLocation);
     } else {
-      const currentExecutionFolder = moment().format(DATE_AND_TIME_MOMENT_FORMAT);
+      const currentExecutionFolder = moment().format(DATE_TIME_FORMAT);
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}/${currentExecutionFolder}`;
       await generateSeparatedReports(reportAccounts, saveLocation);
     }

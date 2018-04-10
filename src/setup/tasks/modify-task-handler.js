@@ -3,7 +3,9 @@ import colors from 'colors/safe';
 import { PASSWORD_FIELD } from '../../constants';
 import { SCRAPERS } from '../../helpers/scrapers';
 import { encryptCredentials } from '../../helpers/credentials';
-import tasksManager from '../../helpers/tasks-manager';
+import { TasksManager, printTaskSummary } from '../../helpers/tasks';
+
+const tasksManager = new TasksManager();
 
 const goBackOption = {
   name: 'Go Back',
@@ -65,7 +67,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       const {
         saveLocation,
         combineReport,
-        excludeFutureTransactions,
+        includeFutureTransactions,
       } = _private.get(this).taskData.output;
 
       const answers = await inquirer.prompt([
@@ -113,9 +115,9 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         },
         {
           type: 'confirm',
-          name: 'excludeFutureTransactions',
-          message: 'exclude future transactions?',
-          default: !!excludeFutureTransactions,
+          name: 'includeFutureTransactions',
+          message: 'Include future transactions?',
+          default: !!includeFutureTransactions,
         },
       ]);
 
@@ -123,8 +125,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       _private.get(this).taskData.options.dateDiffByMonth = answers.dateDiffByMonth;
       _private.get(this).taskData.output.saveLocation = answers.saveLocation;
       _private.get(this).taskData.output.combineReport = answers.combineReport;
-      _private.get(this).taskData.output.excludeFutureTransactions =
-        answers.excludeFutureTransactions;
+      _private.get(this).taskData.output.includeFutureTransactions =
+        answers.includeFutureTransactions;
       console.log(colors.notify('Changes saved'));
       await this.saveTask();
     }
@@ -251,7 +253,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
 
       if (_private.get(this).taskData) {
         if (firstTimeEntering) {
-          console.log(colors.title(`Entering task '${_private.get(this).taskName}' edit mode`));
+          console.log(colors.title(`Editing task '${_private.get(this).taskName}'`));
         }
 
         const answers = await inquirer.prompt([
@@ -280,7 +282,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         switch (answers.action) {
           case 'summary':
             console.log(''); // print empty line
-            await tasksManager.printTaskSummary(_private.get(this).taskName);
+            printTaskSummary(_private.get(this).taskData);
             console.log(''); // print empty line
             await this.run();
             break;
@@ -293,7 +295,6 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
             await this.run();
             break;
           default:
-            console.log(colors.title(`Leaving task '${_private.get(this).taskName}' edit mode`));
             break;
         }
       }

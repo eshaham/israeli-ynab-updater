@@ -1,6 +1,8 @@
 import inquirer from 'inquirer';
 import colors from 'colors/safe';
-import tasksManager from '../../helpers/tasks-manager';
+import { TasksManager } from '../../helpers/tasks';
+
+const tasksManager = new TasksManager();
 
 const DeleteTaskHandler = (function createDeleteTaskHandler() {
   const _private = new WeakMap();

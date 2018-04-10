@@ -81,7 +81,7 @@ export default async function (showBrowser) {
       const scrapedAccounts = await scrape(scraperId, credentials, options);
       await generateSeparatedReports(scrapedAccounts, saveLocation);
     } catch (e) {
-      console.log('error:', e.message);
+      console.error(e);
     }
   } else {
     console.log('Could not find credentials file');

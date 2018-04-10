@@ -1,7 +1,7 @@
 import json2csv from 'json2csv';
 import colors from 'colors/safe';
 import moment from 'moment';
-import { DATE_AND_TIME_MOMENT_FORMAT } from '../constants';
+import { DATE_TIME_FORMAT } from '../constants';
 import { writeFile } from '../helpers/files';
 
 function getReportFields(isSingleReport) {
@@ -71,7 +71,7 @@ export async function generateSingleReport(scrapedAccounts, saveLocation) {
     acc.push(...account.txns);
     return acc;
   }, []);
-  const filePath = `${saveLocation}/${moment().format(DATE_AND_TIME_MOMENT_FORMAT)}.csv`;
+  const filePath = `${saveLocation}/${moment().format(DATE_TIME_FORMAT)}.csv`;
   const fileFields = getReportFields(true);
   const fileContent = json2csv({ data: fileTransactions, fields: fileFields, withBOM: true });
   await writeFile(filePath, fileContent);

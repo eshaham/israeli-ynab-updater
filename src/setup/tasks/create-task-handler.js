@@ -2,7 +2,9 @@ import inquirer from 'inquirer';
 import colors from 'colors/safe';
 import { DOWNLOAD_FOLDER } from '../../definitions';
 import ModifyTaskHandler from './modify-task-handler';
-import tasksManager from '../../helpers/tasks-manager';
+import { TasksManager } from '../../helpers/tasks';
+
+const tasksManager = new TasksManager();
 
 function createEmptyTaskData() {
   return {
@@ -14,7 +16,7 @@ function createEmptyTaskData() {
     output: {
       saveLocation: DOWNLOAD_FOLDER,
       combineReport: true,
-      excludeFutureTransactions: true,
+      includeFutureTransactions: false,
     },
   };
 }
@@ -52,7 +54,7 @@ export default class {
       const taskData = createEmptyTaskData();
       await tasksManager.saveTask(taskName, taskData);
       const modifyTaskAdapter = new ModifyTaskHandler(taskName);
-      console.log(colors.notify(`Task named ${taskName}' created`));
+      console.log(colors.notify(`Task '${taskName}' created`));
       await modifyTaskAdapter.run();
     } else {
       console.log(colors.notify('Task creation cancelled'));

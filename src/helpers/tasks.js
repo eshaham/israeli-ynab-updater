@@ -9,7 +9,32 @@ function writeSummaryLine(key, value) {
   console.log(`- ${colors.bold(key)}: ${value}`);
 }
 
-class TaskManager {
+function printTaskSummary(taskData) {
+  if (taskData) {
+    const scrapers = taskData.scrapers || [];
+    const {
+      dateDiffByMonth,
+      combineInstallments,
+    } = taskData.options;
+    const {
+      combineReport,
+      saveLocation,
+      includeFutureTransactions,
+    } = taskData.output;
+    const substractValue = dateDiffByMonth - 1;
+    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
+
+    console.log(colors.underline.bold('Task Summary'));
+    writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
+    writeSummaryLine('Start scraping from', startMoment.format('ll'));
+    writeSummaryLine('Combine installments', combineInstallments ? 'Yes' : 'No');
+    writeSummaryLine('Save to location', saveLocation);
+    writeSummaryLine('Create single report', combineReport ? 'Yes' : 'No');
+    writeSummaryLine('Include future Transactions', includeFutureTransactions ? 'Yes' : 'No');
+  }
+}
+
+class TasksManager {
   async getTasksList() {
     const files = await getFolderFiles(TASKS_FOLDER, '.json');
     const result = files.map(file => path.basename(file, '.json'));
@@ -49,35 +74,6 @@ class TaskManager {
       throw new Error(`invalid task name provided ${taskName}`);
     }
   }
-
-  async printTaskSummary(taskName) {
-    const taskData = await this.loadTask(taskName);
-
-    if (taskData) {
-      const scrapers = taskData.scrapers || [];
-      const {
-        dateDiffByMonth,
-        combineInstallments,
-      } = taskData.options;
-      const {
-        combineReport,
-        saveLocation,
-        excludeFutureTransactions,
-      } = taskData.output;
-      const substractValue = dateDiffByMonth - 1;
-      const startMoment = moment().subtract(substractValue, 'month').startOf('month');
-
-      console.log(colors.underline.bold(`Task ${taskName} Summary`));
-      writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
-      writeSummaryLine('Start scraping from', startMoment.format('ll'));
-      writeSummaryLine('Combine installments', combineInstallments ? 'yes' : 'no');
-      writeSummaryLine('Save to location', saveLocation);
-      writeSummaryLine('Create single report', combineReport ? 'yes' : 'no');
-      writeSummaryLine('Exclude future Transactions', excludeFutureTransactions ? 'yes' : 'no');
-    }
-  }
 }
 
-const taskManager = new TaskManager();
-
-export default taskManager;
+export { TasksManager, printTaskSummary };
