@@ -48,7 +48,7 @@ export default async function (showBrowser) {
       return;
     }
 
-    printTaskSummary(taskData);
+    printTaskSummary(taskData, true);
 
     const {
       dateDiffByMonth,

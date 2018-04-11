@@ -4,6 +4,8 @@ import setupTask from './tasks/setup-task';
 import setupScrapers from './setup-scrapers';
 
 export default async function () {
+  const SETUP_SCRAPER_ACTION = 'scraper';
+  const SETUP_TASK_ACTION = 'task';
   const { setupType } = await inquirer.prompt({
     type: 'list',
     name: 'setupType',
@@ -11,20 +13,20 @@ export default async function () {
     choices: [
       {
         name: 'Setup a new scraper',
-        value: 'scraper',
+        value: SETUP_SCRAPER_ACTION,
       },
       {
         name: 'Setup a new task',
-        value: 'task',
+        value: SETUP_TASK_ACTION,
       },
     ],
   });
 
   switch (setupType) {
-    case 'scraper':
+    case SETUP_SCRAPER_ACTION:
       await setupScrapers();
       break;
-    case 'task':
+    case SETUP_TASK_ACTION:
       await setupTask();
       break;
     default:

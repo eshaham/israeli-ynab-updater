@@ -3,6 +3,10 @@ import colors from 'colors/safe';
 import { TasksManager } from '../../helpers/tasks';
 
 const tasksManager = new TasksManager();
+const goBackOption = {
+  name: 'Go Back',
+  value: '',
+};
 
 const DeleteTaskHandler = (function createDeleteTaskHandler() {
   const _private = new WeakMap();
@@ -14,10 +18,10 @@ const DeleteTaskHandler = (function createDeleteTaskHandler() {
           type: 'list',
           name: 'taskName',
           message: 'Select a task to delete',
-          choices: [...await tasksManager.getTasksList(), {
-            name: 'Go Back',
-            value: '',
-          }],
+          choices: [
+            ...await tasksManager.getTasksList(),
+            goBackOption,
+          ],
         },
         {
           type: 'confirm',

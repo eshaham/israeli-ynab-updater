@@ -9,7 +9,7 @@ function writeSummaryLine(key, value) {
   console.log(`- ${colors.bold(key)}: ${value}`);
 }
 
-function printTaskSummary(taskData) {
+function printTaskSummary(taskData, shouldCalculateStartDate = false) {
   if (taskData) {
     const scrapers = taskData.scrapers || [];
     const {
@@ -21,12 +21,17 @@ function printTaskSummary(taskData) {
       saveLocation,
       includeFutureTransactions,
     } = taskData.output;
-    const substractValue = dateDiffByMonth - 1;
-    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
-
     console.log(colors.underline.bold('Task Summary'));
     writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
-    writeSummaryLine('Start scraping from', startMoment.format('ll'));
+
+    if (shouldCalculateStartDate) {
+      const substractValue = dateDiffByMonth - 1;
+      const startMoment = moment().subtract(substractValue, 'month').startOf('month');
+      writeSummaryLine('Start scraping from', startMoment.format('ll'));
+    } else {
+      writeSummaryLine('Scrape # of months', dateDiffByMonth);
+    }
+
     writeSummaryLine('Combine installments', combineInstallments ? 'Yes' : 'No');
     writeSummaryLine('Save to location', saveLocation);
     writeSummaryLine('Create single report', combineReport ? 'Yes' : 'No');

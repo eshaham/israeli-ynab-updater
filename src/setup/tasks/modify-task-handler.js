@@ -135,6 +135,9 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
    * @private
    */
     async manageScrapers() {
+      const MODIFY_ACTION = 'modify';
+      const DELETE_ACTION = 'delete';
+
       const answers = await inquirer.prompt([
         {
           type: 'list',
@@ -143,11 +146,11 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           choices: [
             {
               name: 'Add / Edit a scraper',
-              value: 'modify',
+              value: MODIFY_ACTION,
             },
             {
               name: 'Delete a scraper',
-              value: 'delete',
+              value: DELETE_ACTION,
             },
             goBackOption,
           ],
@@ -157,7 +160,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           name: 'scraperId',
           message: 'Select a scraper',
           when: (answers) => {
-            if (answers.action === 'delete') {
+            if (answers.action === DELETE_ACTION) {
               const hasScrapers = _private.get(this).taskData.scrapers.length !== 0;
 
               if (!hasScrapers) {
@@ -167,10 +170,11 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
               return hasScrapers;
             }
 
-            return answers.action === 'modify';
+            const isRelevantQuestion = answers.action === MODIFY_ACTION;
+            return isRelevantQuestion;
           },
           choices: (answers) => {
-            if (answers.action === 'modify') {
+            if (answers.action === MODIFY_ACTION) {
               return [...getListOfScrapers(_private.get(this).taskData.scrapers), goBackOption];
             }
 
@@ -186,7 +190,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         {
           type: 'confirm',
           name: 'confirmDelete',
-          when: answers => answers.action === 'delete' && answers.scraperId,
+          when: answers => answers.action === DELETE_ACTION && answers.scraperId,
           message: 'Are you sure?',
           default: false,
         },
@@ -195,7 +199,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       const { scraperId, action, confirmDelete } = answers;
 
       if (scraperId) {
-        if (action === 'delete') {
+        if (action === DELETE_ACTION) {
           if (confirmDelete) {
             console.log(colors.notify(`Scraper ${scraperId} deleted`));
             _private.get(this).taskData.scrapers = _private.get(this)
@@ -204,7 +208,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           } else {
             console.log(colors.notify('Delete scraper cancelled'));
           }
-        } else if (action === 'modify') {
+        } else if (action === MODIFY_ACTION) {
           const { loginFields } = SCRAPERS[scraperId];
           const questions = loginFields.map((field) => {
             return {
@@ -240,6 +244,10 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
     }
 
     async run() {
+      const VIEW_SUMMARY_ACTION = 'summary';
+      const UPDATE_SCRAPERS_LIST_ACTION = 'scrapers-list';
+      const UPDATE_OPTIONS_ACTION = 'scraping-options';
+
       let firstTimeEntering = false;
 
       if (!_private.get(this).taskName) {
@@ -264,15 +272,15 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
             choices: [
               {
                 name: 'View task summary',
-                value: 'summary',
+                value: VIEW_SUMMARY_ACTION,
               },
               {
                 name: 'Update scrapers list',
-                value: 'scrapers',
+                value: UPDATE_SCRAPERS_LIST_ACTION,
               },
               {
                 name: 'Update scraping options',
-                value: 'options',
+                value: UPDATE_OPTIONS_ACTION,
               },
               goBackOption,
             ],
@@ -280,17 +288,17 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         ]);
 
         switch (answers.action) {
-          case 'summary':
+          case VIEW_SUMMARY_ACTION:
             console.log(''); // print empty line
-            printTaskSummary(_private.get(this).taskData);
+            printTaskSummary(_private.get(this).taskData, false);
             console.log(''); // print empty line
             await this.run();
             break;
-          case 'scrapers':
+          case UPDATE_SCRAPERS_LIST_ACTION:
             await this.manageScrapers();
             await this.run();
             break;
-          case 'options':
+          case UPDATE_OPTIONS_ACTION:
             await this.manageOptions();
             await this.run();
             break;
