@@ -17,6 +17,7 @@ function createEmptyTaskData() {
       saveLocation: DOWNLOAD_FOLDER,
       combineReport: true,
       includeFutureTransactions: false,
+      includePendingTransactions: false,
     },
   };
 }

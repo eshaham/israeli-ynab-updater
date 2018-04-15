@@ -9,7 +9,11 @@ import { readSettingsFile, writeSettingsFile } from '../helpers/settings';
 import scrape from './scrape-base';
 import { generateSeparatedReports } from './generate-reports';
 
-async function getParameters(defaultSaveLocation) {
+async function getParameters(
+  defaultSaveLocation,
+  includeFutureTransactions,
+  includePendingTransactions,
+) {
   const startOfMonthMoment = moment().startOf('month');
   const monthOptions = [];
   for (let i = 0; i < 6; i += 1) {
@@ -49,6 +53,18 @@ async function getParameters(defaultSaveLocation) {
       message: 'Save folder?',
       default: defaultSaveLocation,
     },
+    {
+      type: 'confirm',
+      name: 'includeFutureTransactions',
+      message: 'Include future transactions?',
+      default: !!includeFutureTransactions,
+    },
+    {
+      type: 'confirm',
+      name: 'includePendingTransactions',
+      message: 'Include pending transactions?',
+      default: !!includePendingTransactions,
+    },
   ]);
   return result;
 }
@@ -61,7 +77,13 @@ export default async function (showBrowser) {
     combineInstallments,
     startDate,
     saveLocation,
-  } = await getParameters(settings.saveLocation);
+    includeFutureTransactions,
+    includePendingTransactions,
+  } = await getParameters(
+    settings.saveLocation,
+    settings.includeFutureTransactions,
+    settings.includePendingTransactions,
+  );
 
   if (saveLocation !== settings.saveLocation) {
     settings.saveLocation = saveLocation;
@@ -79,7 +101,12 @@ export default async function (showBrowser) {
 
     try {
       const scrapedAccounts = await scrape(scraperId, credentials, options);
-      await generateSeparatedReports(scrapedAccounts, saveLocation);
+      await generateSeparatedReports(
+        scrapedAccounts,
+        saveLocation,
+        includeFutureTransactions,
+        includePendingTransactions,
+      );
     } catch (e) {
       console.error(e);
     }

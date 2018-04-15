@@ -11,6 +11,7 @@ async function prepareResults(scraperId, scraperName, scraperResult, combineInst
         account: account.accountNumber,
         dateMoment: moment(txn.date),
         payee: txn.description,
+        status: txn.status,
         amount: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
         installment: txn.installments ? txn.installments.number : null,
         total: txn.installments ? txn.installments.total : null,

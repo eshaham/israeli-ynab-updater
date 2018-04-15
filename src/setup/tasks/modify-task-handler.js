@@ -68,6 +68,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         saveLocation,
         combineReport,
         includeFutureTransactions,
+        includePendingTransactions,
       } = _private.get(this).taskData.output;
 
       const answers = await inquirer.prompt([
@@ -119,6 +120,12 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           message: 'Include future transactions?',
           default: !!includeFutureTransactions,
         },
+        {
+          type: 'confirm',
+          name: 'includePendingTransactions',
+          message: 'Include pending transactions?',
+          default: !!includePendingTransactions,
+        },
       ]);
 
       _private.get(this).taskData.options.combineInstallments = answers.combineInstallments;
@@ -127,6 +134,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       _private.get(this).taskData.output.combineReport = answers.combineReport;
       _private.get(this).taskData.output.includeFutureTransactions =
         answers.includeFutureTransactions;
+      _private.get(this).taskData.output.includePendingTransactions =
+        answers.includePendingTransactions;
       console.log(colors.notify('Changes saved'));
       await this.saveTask();
     }
