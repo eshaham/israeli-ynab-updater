@@ -1,6 +1,13 @@
 import yargs from 'yargs';
-import scrape from './scrape/scrape-individual';
+import colors from 'colors/safe';
 import setupMainMenu from './setup/setup-main-menu';
+import scrapingMainMenu from './scrape/scraping-main-menu';
+
+// set theme
+colors.setTheme({
+  title: 'bgCyan',
+  notify: 'magenta',
+});
 
 const args = yargs.options({
   mode: {
@@ -16,7 +23,7 @@ const args = yargs.options({
 }).help().argv;
 
 if (!args.mode || args.mode === 'scrape') {
-  scrape(args.show);
+  scrapingMainMenu(args.show);
 } else if (args.mode === 'setup') {
   setupMainMenu();
 }
