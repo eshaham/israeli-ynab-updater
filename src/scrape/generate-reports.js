@@ -1,7 +1,7 @@
 import json2csv from 'json2csv';
 import colors from 'colors/safe';
 import moment from 'moment';
-import { DATE_TIME_FORMAT } from '../constants';
+import { DATE_TIME_FORMAT, TRANSACTION_STATUS } from '../constants';
 import { writeFile } from '../helpers/files';
 
 function getReportFields(isSingleReport) {
@@ -51,18 +51,16 @@ function getReportFields(isSingleReport) {
 function filterTransactions(transactions, includeFutureTransactions, includePendingTransactions) {
   let result = transactions;
 
-  if (result && result.length) {
-    if (!includeFutureTransactions) {
-      const nowMoment = moment();
-      result = result.filter((txn) => {
-        const txnMoment = moment(txn.dateMoment);
-        return txnMoment.isSameOrBefore(nowMoment, 'day');
-      });
-    }
+  if (!includeFutureTransactions) {
+    const nowMoment = moment();
+    result = result.filter((txn) => {
+      const txnMoment = moment(txn.dateMoment);
+      return txnMoment.isSameOrBefore(nowMoment, 'day');
+    });
+  }
 
-    if (!includePendingTransactions) {
-      result = result.filter(txn => (txn.status || '').toLowerCase() !== 'pending');
-    }
+  if (!includePendingTransactions) {
+    result = result.filter(txn => txn.status !== TRANSACTION_STATUS.PENDING);
   }
 
   return result;
