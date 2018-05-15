@@ -98,7 +98,12 @@ export default async function (showBrowser) {
     } else {
       const currentExecutionFolder = moment().format(DATE_TIME_FORMAT);
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}/${currentExecutionFolder}`;
-      await generateSeparatedReports(reportAccounts, saveLocation);
+      await generateSeparatedReports(
+        reportAccounts,
+        saveLocation,
+        includeFutureTransactions,
+        includePendingTransactions,
+      );
     }
   }
 }
