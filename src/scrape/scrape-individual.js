@@ -85,10 +85,10 @@ export default async function (showBrowser) {
     settings.includePendingTransactions,
   );
 
-  if (saveLocation !== settings.saveLocation) {
-    settings.saveLocation = saveLocation;
-    await writeSettingsFile(settings);
-  }
+  settings.saveLocation = saveLocation;
+  settings.includeFutureTransactions = includeFutureTransactions;
+  settings.includePendingTransactions = includePendingTransactions;
+  await writeSettingsFile(settings);
 
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
   if (encryptedCredentials) {
