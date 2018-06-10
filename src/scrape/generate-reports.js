@@ -1,7 +1,7 @@
 import json2csv from 'json2csv';
 import colors from 'colors/safe';
 import moment from 'moment';
-import { DATE_TIME_FORMAT } from '../constants';
+import { DATE_TIME_FORMAT, TRANSACTION_STATUS } from '../constants';
 import { writeFile } from '../helpers/files';
 
 function getReportFields(isSingleReport) {
@@ -17,6 +17,10 @@ function getReportFields(isSingleReport) {
     {
       label: 'Inflow',
       value: 'amount',
+    },
+    {
+      label: 'Status',
+      value: 'status',
     },
     {
       label: 'Installment',
@@ -44,31 +48,74 @@ function getReportFields(isSingleReport) {
   return result;
 }
 
-async function exportAccountData(account, saveLocation) {
-  const fields = getReportFields(false);
-  const csv = json2csv({ data: account.txns, fields, withBOM: true });
-  await writeFile(`${saveLocation}/${account.scraperName} (${account.accountNumber}).csv`, csv);
+function filterTransactions(transactions, includeFutureTransactions, includePendingTransactions) {
+  let result = transactions;
+
+  if (!includeFutureTransactions) {
+    const nowMoment = moment();
+    result = result.filter((txn) => {
+      const txnMoment = moment(txn.dateMoment);
+      return txnMoment.isSameOrBefore(nowMoment, 'day');
+    });
+  }
+
+  if (!includePendingTransactions) {
+    result = result.filter(txn => txn.status !== TRANSACTION_STATUS.PENDING);
+  }
+
+  return result;
 }
 
-export async function generateSeparatedReports(scrapedAccounts, saveLocation) {
+async function exportAccountData(txns, scraperName, accountNumber, saveLocation) {
+  const fields = getReportFields(false);
+  const csv = json2csv({ data: txns, fields, withBOM: true });
+  await writeFile(`${saveLocation}/${scraperName} (${accountNumber}).csv`, csv);
+}
+
+export async function generateSeparatedReports(
+  scrapedAccounts,
+  saveLocation,
+  includeFutureTransactions,
+  includePendingTransactions,
+) {
   let numFiles = 0;
   for (let i = 0; i < scrapedAccounts.length; i += 1) {
-    const account = scrapedAccounts[i];
-    if (account.txns.length) {
-      console.log(colors.notify(`exporting ${account.txns.length} transactions for account # ${account.accountNumber}`));
-      await exportAccountData(account, saveLocation);
+    const {
+      txns: accountTxns,
+      accountNumber,
+      scraperName,
+    } = scrapedAccounts[i];
+
+    const filteredTxns = filterTransactions(
+      accountTxns,
+      includeFutureTransactions,
+      includePendingTransactions,
+    );
+    if (filteredTxns.length) {
+      console.log(colors.notify(`exporting ${accountTxns.length} transactions for account # ${accountNumber}`));
+      await exportAccountData(filteredTxns, scraperName, accountNumber, saveLocation);
       numFiles += 1;
     } else {
-      console.log(`no transactions for account # ${account.accountNumber}`);
+      console.log(`no transactions for account # ${accountNumber}`);
     }
   }
 
   console.log(colors.notify(`${numFiles} csv files saved under ${saveLocation}`));
 }
 
-export async function generateSingleReport(scrapedAccounts, saveLocation) {
+export async function generateSingleReport(
+  scrapedAccounts,
+  saveLocation,
+  includeFutureTransactions,
+  includePendingTransactions,
+) {
   const fileTransactions = scrapedAccounts.reduce((acc, account) => {
-    acc.push(...account.txns);
+    const filteredTransactions = filterTransactions(
+      account.txns,
+      includeFutureTransactions,
+      includePendingTransactions,
+    );
+    acc.push(...filteredTransactions);
     return acc;
   }, []);
   const filePath = `${saveLocation}/${moment().format(DATE_TIME_FORMAT)}.csv`;

@@ -9,7 +9,15 @@ import { readSettingsFile, writeSettingsFile } from '../helpers/settings';
 import scrape from './scrape-base';
 import { generateSeparatedReports } from './generate-reports';
 
-async function getParameters(defaultSaveLocation) {
+async function getParameters() {
+  const settings = await readSettingsFile();
+  const {
+    combineInstallments,
+    saveLocation,
+    includeFutureTransactions,
+    includePendingTransactions,
+  } = settings;
+
   const startOfMonthMoment = moment().startOf('month');
   const monthOptions = [];
   for (let i = 0; i < 6; i += 1) {
@@ -35,7 +43,7 @@ async function getParameters(defaultSaveLocation) {
       type: 'confirm',
       name: 'combineInstallments',
       message: 'Combine installment transactions?',
-      default: true,
+      default: !!combineInstallments,
     },
     {
       type: 'list',
@@ -47,26 +55,41 @@ async function getParameters(defaultSaveLocation) {
       type: 'input',
       name: 'saveLocation',
       message: 'Save folder?',
-      default: defaultSaveLocation,
+      default: saveLocation,
+    },
+    {
+      type: 'confirm',
+      name: 'includeFutureTransactions',
+      message: 'Include future transactions?',
+      default: !!includeFutureTransactions,
+    },
+    {
+      type: 'confirm',
+      name: 'includePendingTransactions',
+      message: 'Include pending transactions?',
+      default: !!includePendingTransactions,
     },
   ]);
+
+  settings.combineInstallments = result.combineInstallments;
+  settings.startDate = result.startDate;
+  settings.saveLocation = result.saveLocation;
+  settings.includeFutureTransactions = result.includeFutureTransactions;
+  settings.includePendingTransactions = result.includePendingTransactions;
+  await writeSettingsFile(settings);
+
   return result;
 }
 
-
 export default async function (showBrowser) {
-  const settings = await readSettingsFile();
   const {
     scraperId,
     combineInstallments,
     startDate,
     saveLocation,
-  } = await getParameters(settings.saveLocation);
-
-  if (saveLocation !== settings.saveLocation) {
-    settings.saveLocation = saveLocation;
-    await writeSettingsFile(settings);
-  }
+    includeFutureTransactions,
+    includePendingTransactions,
+  } = await getParameters();
 
   const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
   if (encryptedCredentials) {
@@ -79,7 +102,12 @@ export default async function (showBrowser) {
 
     try {
       const scrapedAccounts = await scrape(scraperId, credentials, options);
-      await generateSeparatedReports(scrapedAccounts, saveLocation);
+      await generateSeparatedReports(
+        scrapedAccounts,
+        saveLocation,
+        includeFutureTransactions,
+        includePendingTransactions,
+      );
     } catch (e) {
       console.error(e);
     }

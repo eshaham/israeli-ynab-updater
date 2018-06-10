@@ -20,6 +20,7 @@ function printTaskSummary(taskData, shouldCalculateStartDate = false) {
       combineReport,
       saveLocation,
       includeFutureTransactions,
+      includePendingTransactions,
     } = taskData.output;
     console.log(colors.underline.bold('Task Summary'));
     writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
@@ -36,6 +37,7 @@ function printTaskSummary(taskData, shouldCalculateStartDate = false) {
     writeSummaryLine('Save to location', saveLocation);
     writeSummaryLine('Create single report', combineReport ? 'Yes' : 'No');
     writeSummaryLine('Include future Transactions', includeFutureTransactions ? 'Yes' : 'No');
+    writeSummaryLine('Include pending Transactions', includePendingTransactions ? 'Yes' : 'No');
   }
 }
 

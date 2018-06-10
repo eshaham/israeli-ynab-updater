@@ -58,6 +58,7 @@ export default async function (showBrowser) {
       combineReport,
       saveLocation: saveLocationRootPath,
       includeFutureTransactions,
+      includePendingTransactions,
     } = taskData.output;
     const substractValue = dateDiffByMonth - 1;
     const startMoment = moment().subtract(substractValue, 'month').startOf('month');
@@ -86,26 +87,23 @@ export default async function (showBrowser) {
       }
     }
 
-    if (includeFutureTransactions) {
-      const nowMoment = moment();
-      for (let i = 0; i < reportAccounts.length; i += 1) {
-        const account = reportAccounts[i];
-        if (account.txns) {
-          account.txns = account.txns.filter((txn) => {
-            const txnMoment = moment(txn.dateMoment);
-            return txnMoment.isSameOrBefore(nowMoment, 'day');
-          });
-        }
-      }
-    }
-
     if (combineReport) {
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}`;
-      await generateSingleReport(reportAccounts, saveLocation);
+      await generateSingleReport(
+        reportAccounts,
+        saveLocation,
+        includeFutureTransactions,
+        includePendingTransactions,
+      );
     } else {
       const currentExecutionFolder = moment().format(DATE_TIME_FORMAT);
       const saveLocation = `${saveLocationRootPath}/tasks/${taskName}/${currentExecutionFolder}`;
-      await generateSeparatedReports(reportAccounts, saveLocation);
+      await generateSeparatedReports(
+        reportAccounts,
+        saveLocation,
+        includeFutureTransactions,
+        includePendingTransactions,
+      );
     }
   }
 }
