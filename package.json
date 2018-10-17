@@ -38,7 +38,7 @@
     "babel-polyfill": "^6.26.0",
     "colors": "^1.2.1",
     "inquirer": "^4.0.1",
-    "israeli-bank-scrapers": "^0.6.1",
+    "israeli-bank-scrapers": "^0.6.4",
     "json2csv": "^3.11.5",
     "jsonfile": "^4.0.0",
     "moment": "^2.19.3",
