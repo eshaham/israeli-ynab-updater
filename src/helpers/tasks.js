@@ -1,9 +1,14 @@
 import path from 'path';
 import colors from 'colors/safe';
 import moment from 'moment';
-import { writeJsonFile, readJsonFile, getFolderFiles, deleteFile } from '../helpers/files';
+import {
+  writeJsonFile,
+  readJsonFile,
+  getFolderFiles,
+  deleteFile,
+} from './files';
 import { TASKS_FOLDER } from '../definitions';
-import { SCRAPERS } from '../helpers/scrapers';
+import { SCRAPERS } from './scrapers';
 
 function writeSummaryLine(key, value) {
   console.log(`- ${colors.bold(key)}: ${value}`);
@@ -50,8 +55,9 @@ class TasksManager {
 
   async hasTask(taskName) {
     const tasksList = await this.getTasksList();
-    return taskName && !!tasksList.find(taskListName =>
-      taskListName.toLowerCase() === taskName.toLowerCase());
+    return taskName && !!tasksList.find((taskListName) => {
+      return taskListName.toLowerCase() === taskName.toLowerCase();
+    });
   }
 
   isValidTaskName(taskName) {

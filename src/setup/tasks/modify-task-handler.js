@@ -86,7 +86,9 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           filter: (value) => {
             if (Number.isFinite(value) && !Number.isNaN(value)) {
               return value;
-            } else if (typeof value === 'string' && value.match(/^[0-9]+$/)) {
+            }
+
+            if (typeof value === 'string' && value.match(/^[0-9]+$/)) {
               return value * 1;
             }
 
@@ -128,14 +130,13 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         },
       ]);
 
-      _private.get(this).taskData.options.combineInstallments = answers.combineInstallments;
-      _private.get(this).taskData.options.dateDiffByMonth = answers.dateDiffByMonth;
-      _private.get(this).taskData.output.saveLocation = answers.saveLocation;
-      _private.get(this).taskData.output.combineReport = answers.combineReport;
-      _private.get(this).taskData.output.includeFutureTransactions =
-        answers.includeFutureTransactions;
-      _private.get(this).taskData.output.includePendingTransactions =
-        answers.includePendingTransactions;
+      const { taskData } = _private.get(this);
+      taskData.options.combineInstallments = answers.combineInstallments;
+      taskData.options.dateDiffByMonth = answers.dateDiffByMonth;
+      taskData.output.saveLocation = answers.saveLocation;
+      taskData.output.combineReport = answers.combineReport;
+      taskData.output.includeFutureTransactions = answers.includeFutureTransactions;
+      taskData.output.includePendingTransactions = answers.includePendingTransactions;
       console.log(colors.notify('Changes saved'));
       await this.saveTask();
     }

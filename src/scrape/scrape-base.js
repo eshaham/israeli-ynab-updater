@@ -41,8 +41,7 @@ export default async function (scraperId, credentials, options) {
     showBrowser,
     verbose: false,
   };
-  const scraperName = SCRAPERS[scraperId] ?
-    SCRAPERS[scraperId].name : null;
+  const scraperName = SCRAPERS[scraperId] ? SCRAPERS[scraperId].name : null;
 
   if (!scraperName) {
     throw new Error(`unknown scraper with id ${scraperId}`);
