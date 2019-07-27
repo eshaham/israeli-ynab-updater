@@ -1,4 +1,4 @@
-import json2csv from 'json2csv';
+import { parse as objToCsv } from 'json2csv';
 import colors from 'colors/safe';
 import moment from 'moment';
 import { DATE_TIME_FORMAT, TRANSACTION_STATUS } from '../constants';
@@ -68,7 +68,7 @@ function filterTransactions(transactions, includeFutureTransactions, includePend
 
 async function exportAccountData(txns, scraperName, accountNumber, saveLocation) {
   const fields = getReportFields(false);
-  const csv = json2csv({ data: txns, fields, withBOM: true });
+  const csv = objToCsv({ data: txns, fields, withBOM: true });
   await writeFile(`${saveLocation}/${scraperName} (${accountNumber}).csv`, csv);
 }
 
@@ -120,7 +120,7 @@ export async function generateSingleReport(
   }, []);
   const filePath = `${saveLocation}/${moment().format(DATE_TIME_FORMAT)}.csv`;
   const fileFields = getReportFields(true);
-  const fileContent = json2csv({ data: fileTransactions, fields: fileFields, withBOM: true });
+  const fileContent = objToCsv({ data: fileTransactions, fields: fileFields, withBOM: true });
   await writeFile(filePath, fileContent);
   console.log(colors.notify(`created file ${filePath}`));
 }
