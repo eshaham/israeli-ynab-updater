@@ -35,9 +35,7 @@ async function getParameters() {
   return { taskName: null };
 }
 
-export default async function (showBrowser) {
-  const { taskName } = await getParameters();
-
+async function runSelectedTask(showBrowser, taskName) {
   if (taskName) {
     console.log(colors.title(`Running task '${taskName}'`));
     const taskData = await tasksManager.loadTask(taskName);
@@ -105,5 +103,14 @@ export default async function (showBrowser) {
         includePendingTransactions,
       );
     }
+  }
+}
+
+export default async function (showBrowser, taskName) {
+  if (taskName) {
+    await runSelectedTask(showBrowser, taskName);
+  } else {
+    const { taskName: selectedTaskName } = await getParameters();
+    await runSelectedTask(showBrowser, selectedTaskName);
   }
 }
