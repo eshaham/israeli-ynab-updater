@@ -48,3 +48,9 @@ You can also scrape in debug mode by running:
 ```bash
 npm run start:debug
 ```
+
+If you want to run a specific `task` configured in the `setup`, you can add the `-- -t taskName` to the above commands, and the task will run immediately, without going through any menu. For example:
+
+```bash
+npm run start:debug -- -t myTask
+```
