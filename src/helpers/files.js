@@ -27,7 +27,7 @@ export async function getFolderFiles(folderPath, suffix) {
   await verifyFolder(folderPath);
   const files = await readdirAsync(folderPath);
   if (suffix) {
-    return files.filter(filePath => (path.extname(filePath) || '').toLowerCase() === suffix.toLowerCase());
+    return files.filter((filePath) => (path.extname(filePath) || '').toLowerCase() === suffix.toLowerCase());
   }
   return files;
 }

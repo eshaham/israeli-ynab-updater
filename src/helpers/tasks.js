@@ -28,7 +28,7 @@ function printTaskSummary(taskData, shouldCalculateStartDate = false) {
       includePendingTransactions,
     } = taskData.output;
     console.log(colors.underline.bold('Task Summary'));
-    writeSummaryLine('Scrapers', scrapers.map(scraper => SCRAPERS[scraper.id].name).join(', '));
+    writeSummaryLine('Scrapers', scrapers.map((scraper) => SCRAPERS[scraper.id].name).join(', '));
 
     if (shouldCalculateStartDate) {
       const substractValue = dateDiffByMonth - 1;
@@ -49,7 +49,7 @@ function printTaskSummary(taskData, shouldCalculateStartDate = false) {
 class TasksManager {
   async getTasksList() {
     const files = await getFolderFiles(TASKS_FOLDER, '.json');
-    const result = files.map(file => path.basename(file, '.json'));
+    const result = files.map((file) => path.basename(file, '.json'));
     return result;
   }
 

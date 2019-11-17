@@ -27,7 +27,7 @@ const DeleteTaskHandler = (function createDeleteTaskHandler() {
           type: 'confirm',
           name: 'confirmDelete',
           message: 'Are you sure?',
-          when: answers => !!answers.taskName,
+          when: (answers) => !!answers.taskName,
           default: false,
         },
       ]);

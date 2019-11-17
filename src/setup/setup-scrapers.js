@@ -31,7 +31,7 @@ export default async function () {
       type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
       name: field,
       message: `Enter value for ${field}:`,
-      validate: input => validateNonEmpty(field, input),
+      validate: (input) => validateNonEmpty(field, input),
     };
   });
   const credentialsResult = await inquirer.prompt(questions);

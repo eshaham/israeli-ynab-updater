@@ -8,7 +8,7 @@ function getReportFields(isSingleReport) {
   const result = [
     {
       label: 'Date',
-      value: row => row.dateMoment.format('DD/MM/YYYY'),
+      value: (row) => row.dateMoment.format('DD/MM/YYYY'),
     },
     {
       label: 'Payee',
@@ -60,7 +60,7 @@ function filterTransactions(transactions, includeFutureTransactions, includePend
   }
 
   if (!includePendingTransactions) {
-    result = result.filter(txn => txn.status !== TRANSACTION_STATUS.PENDING);
+    result = result.filter((txn) => txn.status !== TRANSACTION_STATUS.PENDING);
   }
 
   return result;

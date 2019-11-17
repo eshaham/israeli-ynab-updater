@@ -16,7 +16,7 @@ function getListOfScrapers(existingTaskScrapers) {
   return Object.keys(SCRAPERS).map((scraperId) => {
     const result = { value: scraperId, name: SCRAPERS[scraperId].name };
     const hasCredentials = existingTaskScrapers
-      .find(scraper => scraper.id === scraperId);
+      .find((scraper) => scraper.id === scraperId);
     result.name = `${hasCredentials ? 'Edit' : 'Add'} ${result.name}`;
 
     return result;
@@ -188,7 +188,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
               return [...getListOfScrapers(_private.get(this).taskData.scrapers), goBackOption];
             }
 
-            const taskScrapers = _private.get(this).taskData.scrapers.map(scraper => (
+            const taskScrapers = _private.get(this).taskData.scrapers.map((scraper) => (
               {
                 value: scraper.id,
                 name: SCRAPERS[scraper.id].name,
@@ -200,7 +200,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         {
           type: 'confirm',
           name: 'confirmDelete',
-          when: answers => answers.action === DELETE_ACTION && answers.scraperId,
+          when: (answers) => answers.action === DELETE_ACTION && answers.scraperId,
           message: 'Are you sure?',
           default: false,
         },
@@ -213,7 +213,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           if (confirmDelete) {
             console.log(colors.notify(`Scraper ${scraperId} deleted`));
             _private.get(this).taskData.scrapers = _private.get(this)
-              .taskData.scrapers.filter(item => item.id !== scraperId);
+              .taskData.scrapers.filter((item) => item.id !== scraperId);
             await this.saveTask();
           } else {
             console.log(colors.notify('Delete scraper cancelled'));
@@ -225,14 +225,14 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
               type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
               name: field,
               message: `Enter value for ${field}:`,
-              validate: input => validateNonEmpty(field, input),
+              validate: (input) => validateNonEmpty(field, input),
             };
           });
           const credentialsResult = await inquirer.prompt(questions);
           const encryptedCredentials = encryptCredentials(credentialsResult);
 
           const scraperData = _private.get(this).taskData.scrapers
-            .find(scraper => scraper.id === scraperId);
+            .find((scraper) => scraper.id === scraperId);
           if (!scraperData) {
             _private.get(this).taskData.scrapers
               .push({ id: scraperId, credentials: encryptedCredentials });
