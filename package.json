@@ -37,7 +37,7 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "colors": "^1.4.0",
-    "inquirer": "^7.0.0",
+    "inquirer": "^7.0.1",
     "israeli-bank-scrapers": "^0.8.0",
     "json2csv": "^4.5.4",
     "jsonfile": "^5.0.0",
