@@ -40,7 +40,7 @@
     "inquirer": "^7.0.0",
     "israeli-bank-scrapers": "^0.8.0",
     "json2csv": "^4.5.4",
-    "jsonfile": "^5.0.0",
+    "jsonfile": "^6.0.0",
     "moment": "^2.24.0",
     "yargs": "^15.0.1"
   }
