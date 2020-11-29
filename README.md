@@ -5,7 +5,7 @@ A tool for updating YNAB using for the Israeli market. This tool uses [Israeli B
 
 ### Prerequisites 
 
-In order to start using this tool, you will need to have Node.js (>= 8) installed on your machine.  
+In order to start using this tool, you will need to have Node.js (>= 10) installed on your machine.  
 Go [here!](https://nodejs.org/en/download/) to download and install the latest Node.js for your operating system.
 
 ### Installation
