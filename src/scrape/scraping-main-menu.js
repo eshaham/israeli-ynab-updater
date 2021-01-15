@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import scrapeIndividual from './scrape-individual';
 import scrapeTask from './scrape-task';
 
-export default async function (showBrowser) {
+async function selectAction(showBrowser) {
   const RUN_SCRAPER_ACTION = 'scraper';
   const RUN_TASK_ACTION = 'task';
 
@@ -31,5 +31,13 @@ export default async function (showBrowser) {
       break;
     default:
       break;
+  }
+}
+
+export default async function (showBrowser, taskName) {
+  if (taskName) {
+    await scrapeTask(showBrowser, taskName);
+  } else {
+    selectAction(showBrowser);
   }
 }

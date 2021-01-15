@@ -20,10 +20,14 @@ const args = yargs.options({
     type: 'boolean',
     default: false,
   },
+  task: {
+    alias: 't',
+    describe: 'select task to run',
+  },
 }).help().argv;
 
 if (!args.mode || args.mode === 'scrape') {
-  scrapingMainMenu(args.show);
+  scrapingMainMenu(args.show, args.task);
 } else if (args.mode === 'setup') {
   setupMainMenu();
 }
