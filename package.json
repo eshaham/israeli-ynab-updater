@@ -39,7 +39,7 @@
     "colors": "^1.4.0",
     "inquirer": "^7.3.3",
     "israeli-bank-scrapers": "^1.0.1",
-    "json2csv": "^5.0.5",
+    "json2csv": "^5.0.6",
     "jsonfile": "^6.1.0",
     "moment": "^2.29.1",
     "yargs": "^16.1.1"
