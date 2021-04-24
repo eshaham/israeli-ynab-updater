@@ -35,8 +35,10 @@ async function getParameters() {
   return { taskName: null };
 }
 
-export default async function (showBrowser) {
-  const { taskName } = await getParameters();
+export default async function (showBrowser, taskName) {
+  if(!taskName) {
+    taskName = (await getParameters()).taskName;
+  }
 
   if (taskName) {
     console.log(colors.title(`Running task '${taskName}'`));

@@ -14,6 +14,10 @@ const args = yargs.options({
     alias: 'm',
     describe: 'mode for running',
   },
+  runTask: {
+    alias: 't',
+    describe: 'task to run automatically',
+  },
   show: {
     alias: 's',
     describe: 'show browser while scraping',
@@ -23,7 +27,7 @@ const args = yargs.options({
 }).help().argv;
 
 if (!args.mode || args.mode === 'scrape') {
-  scrapingMainMenu(args.show);
+  scrapingMainMenu(args.show, args.runTask);
 } else if (args.mode === 'setup') {
   setupMainMenu();
 }
