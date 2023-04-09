@@ -5,7 +5,10 @@ import { DATE_TIME_FORMAT } from '../constants';
 import { decryptCredentials } from '../helpers/credentials';
 import scrape from './scrape-base';
 import { TasksManager, printTaskSummary } from '../helpers/tasks';
-import { generateSingleReport, generateSeparatedReports } from './generate-reports';
+import {
+  generateSingleReport,
+  generateSeparatedReports,
+} from './generate-reports';
 
 const tasksManager = new TasksManager();
 
@@ -31,7 +34,11 @@ async function getParameters() {
     return { taskName: answers.taskName };
   }
 
-  console.log(colors.notify('No tasks created, please run command \'npm run setup\' to create a task'));
+  console.log(
+    colors.notify(
+      "No tasks created, please run command 'npm run setup' to create a task"
+    )
+  );
   return { taskName: null };
 }
 
@@ -44,16 +51,17 @@ export default async function (showBrowser) {
     const scrapersOfTask = taskData.scrapers || [];
 
     if (scrapersOfTask.length === 0) {
-      console.log(colors.notify('Task has no scrapers defined.\nplease run command \'npm run setup\' and update task scrapers'));
+      console.log(
+        colors.notify(
+          "Task has no scrapers defined.\nplease run command 'npm run setup' and update task scrapers"
+        )
+      );
       return;
     }
 
     printTaskSummary(taskData, true);
 
-    const {
-      dateDiffByMonth,
-      combineInstallments,
-    } = taskData.options;
+    const { dateDiffByMonth, combineInstallments } = taskData.options;
     const {
       combineReport,
       saveLocation: saveLocationRootPath,
@@ -61,7 +69,9 @@ export default async function (showBrowser) {
       includePendingTransactions,
     } = taskData.output;
     const substractValue = dateDiffByMonth - 1;
-    const startMoment = moment().subtract(substractValue, 'month').startOf('month');
+    const startMoment = moment()
+      .subtract(substractValue, 'month')
+      .startOf('month');
     const reportAccounts = [];
 
     console.log(colors.title('Run task scrapers'));
@@ -69,6 +79,18 @@ export default async function (showBrowser) {
     for (let i = 0; i < scrapersOfTask.length; i += 1) {
       const scraperOfTask = scrapersOfTask[i];
       const credentials = decryptCredentials(scraperOfTask.credentials);
+      const credentialsWithOtp = Object.assign(credentials, {
+        otpCodeRetriever: async () => {
+          const { otpCode } = await inquirer.prompt([
+            {
+              type: 'input',
+              name: 'otpCode',
+              message: 'Enter OTP code:',
+            },
+          ]);
+          return otpCode;
+        },
+      });
 
       const options = {
         companyId: scraperOfTask.id,
@@ -79,7 +101,11 @@ export default async function (showBrowser) {
       };
 
       try {
-        const scrapedAccounts = await scrape(scraperOfTask.id, credentials, options);
+        const scrapedAccounts = await scrape(
+          scraperOfTask.id,
+          credentialsWithOtp,
+          options
+        );
         reportAccounts.push(...scrapedAccounts);
       } catch (e) {
         console.error(e);
@@ -93,7 +119,7 @@ export default async function (showBrowser) {
         reportAccounts,
         saveLocation,
         includeFutureTransactions,
-        includePendingTransactions,
+        includePendingTransactions
       );
     } else {
       const currentExecutionFolder = moment().format(DATE_TIME_FORMAT);
@@ -102,7 +128,7 @@ export default async function (showBrowser) {
         reportAccounts,
         saveLocation,
         includeFutureTransactions,
-        includePendingTransactions,
+        includePendingTransactions
       );
     }
   }

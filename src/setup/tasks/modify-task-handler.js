@@ -15,8 +15,9 @@ const goBackOption = {
 function getListOfScrapers(existingTaskScrapers) {
   return Object.keys(SCRAPERS).map((scraperId) => {
     const result = { value: scraperId, name: SCRAPERS[scraperId].name };
-    const hasCredentials = existingTaskScrapers
-      .find((scraper) => scraper.id === scraperId);
+    const hasCredentials = existingTaskScrapers.find(
+      (scraper) => scraper.id === scraperId
+    );
     result.name = `${hasCredentials ? 'Edit' : 'Add'} ${result.name}`;
 
     return result;
@@ -40,7 +41,7 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           type: 'list',
           name: 'taskName',
           message: 'Select a task to modify',
-          choices: [...await tasksManager.getTasksList(), goBackOption],
+          choices: [...(await tasksManager.getTasksList()), goBackOption],
         },
       ]);
 
@@ -56,13 +57,11 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
     }
 
     /*
-   * @private
-   */
+     * @private
+     */
     async manageOptions() {
-      const {
-        combineInstallments,
-        dateDiffByMonth,
-      } = _private.get(this).taskData.options;
+      const { combineInstallments, dateDiffByMonth } =
+        _private.get(this).taskData.options;
 
       const {
         saveLocation,
@@ -135,15 +134,17 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
       taskData.options.dateDiffByMonth = answers.dateDiffByMonth;
       taskData.output.saveLocation = answers.saveLocation;
       taskData.output.combineReport = answers.combineReport;
-      taskData.output.includeFutureTransactions = answers.includeFutureTransactions;
-      taskData.output.includePendingTransactions = answers.includePendingTransactions;
+      taskData.output.includeFutureTransactions =
+        answers.includeFutureTransactions;
+      taskData.output.includePendingTransactions =
+        answers.includePendingTransactions;
       console.log(colors.notify('Changes saved'));
       await this.saveTask();
     }
 
     /*
-   * @private
-   */
+     * @private
+     */
     async manageScrapers() {
       const MODIFY_ACTION = 'modify';
       const DELETE_ACTION = 'delete';
@@ -171,7 +172,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           message: 'Select a scraper',
           when: (answers) => {
             if (answers.action === DELETE_ACTION) {
-              const hasScrapers = _private.get(this).taskData.scrapers.length !== 0;
+              const hasScrapers =
+                _private.get(this).taskData.scrapers.length !== 0;
 
               if (!hasScrapers) {
                 console.log(colors.notify('task has no scrapers defined'));
@@ -185,11 +187,15 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           },
           choices: (answers) => {
             if (answers.action === MODIFY_ACTION) {
-              return [...getListOfScrapers(_private.get(this).taskData.scrapers), goBackOption];
+              return [
+                ...getListOfScrapers(_private.get(this).taskData.scrapers),
+                goBackOption,
+              ];
             }
 
-            const taskScrapers = _private.get(this).taskData.scrapers.map((scraper) => (
-              {
+            const taskScrapers = _private
+              .get(this)
+              .taskData.scrapers.map((scraper) => ({
                 value: scraper.id,
                 name: SCRAPERS[scraper.id].name,
               }));
@@ -200,7 +206,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         {
           type: 'confirm',
           name: 'confirmDelete',
-          when: (answers) => answers.action === DELETE_ACTION && answers.scraperId,
+          when: (answers) =>
+            answers.action === DELETE_ACTION && answers.scraperId,
           message: 'Are you sure?',
           default: false,
         },
@@ -212,7 +219,8 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
         if (action === DELETE_ACTION) {
           if (confirmDelete) {
             console.log(colors.notify(`Scraper ${scraperId} deleted`));
-            _private.get(this).taskData.scrapers = _private.get(this)
+            _private.get(this).taskData.scrapers = _private
+              .get(this)
               .taskData.scrapers.filter((item) => item.id !== scraperId);
             await this.saveTask();
           } else {
@@ -220,22 +228,27 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
           }
         } else if (action === MODIFY_ACTION) {
           const { loginFields } = SCRAPERS[scraperId];
-          const questions = loginFields.map((field) => {
-            return {
-              type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
-              name: field,
-              message: `Enter value for ${field}:`,
-              validate: (input) => validateNonEmpty(field, input),
-            };
-          });
+          const questions = loginFields
+            .filter((field) => !field.startsWith('otp'))
+            .map((field) => {
+              return {
+                type: field === PASSWORD_FIELD ? PASSWORD_FIELD : 'input',
+                name: field,
+                message: `Enter value for ${field}:`,
+                validate: (input) => validateNonEmpty(field, input),
+              };
+            });
           const credentialsResult = await inquirer.prompt(questions);
           const encryptedCredentials = encryptCredentials(credentialsResult);
 
-          const scraperData = _private.get(this).taskData.scrapers
-            .find((scraper) => scraper.id === scraperId);
+          const scraperData = _private
+            .get(this)
+            .taskData.scrapers.find((scraper) => scraper.id === scraperId);
           if (!scraperData) {
-            _private.get(this).taskData.scrapers
-              .push({ id: scraperId, credentials: encryptedCredentials });
+            _private.get(this).taskData.scrapers.push({
+              id: scraperId,
+              credentials: encryptedCredentials,
+            });
             console.log(colors.notify(`'${scraperId}' scrapper added`));
           } else {
             scraperData.credentials = encryptedCredentials;
@@ -247,10 +260,13 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
     }
 
     /*
-   * @private
-   */
+     * @private
+     */
     async saveTask() {
-      await tasksManager.saveTask(_private.get(this).taskName, _private.get(this).taskData);
+      await tasksManager.saveTask(
+        _private.get(this).taskName,
+        _private.get(this).taskData
+      );
     }
 
     async run() {
@@ -266,12 +282,16 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
 
       if (!_private.get(this).taskData) {
         firstTimeEntering = true;
-        _private.get(this).taskData = await tasksManager.loadTask(_private.get(this).taskName);
+        _private.get(this).taskData = await tasksManager.loadTask(
+          _private.get(this).taskName
+        );
       }
 
       if (_private.get(this).taskData) {
         if (firstTimeEntering) {
-          console.log(colors.title(`Editing task '${_private.get(this).taskName}'`));
+          console.log(
+            colors.title(`Editing task '${_private.get(this).taskName}'`)
+          );
         }
 
         const answers = await inquirer.prompt([
@@ -320,6 +340,6 @@ const ModifyTaskHandler = (function createModifyTaskHandler() {
   }
 
   return ModifyTaskHandler;
-}());
+})();
 
 export default ModifyTaskHandler;

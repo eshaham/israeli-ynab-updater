@@ -91,9 +91,23 @@ export default async function (showBrowser) {
     includePendingTransactions,
   } = await getParameters();
 
-  const encryptedCredentials = await readJsonFile(`${CONFIG_FOLDER}/${scraperId}.json`);
+  const encryptedCredentials = await readJsonFile(
+    `${CONFIG_FOLDER}/${scraperId}.json`
+  );
   if (encryptedCredentials) {
     const credentials = decryptCredentials(encryptedCredentials);
+    const credentialsWithOtp = Object.assign(credentials, {
+      otpCodeRetriever: async () => {
+        const { otpCode } = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'otpCode',
+            message: 'Enter OTP code:',
+          },
+        ]);
+        return otpCode;
+      },
+    });
     const options = {
       startDate: startDate.toDate(),
       combineInstallments,
@@ -101,12 +115,16 @@ export default async function (showBrowser) {
     };
 
     try {
-      const scrapedAccounts = await scrape(scraperId, credentials, options);
+      const scrapedAccounts = await scrape(
+        scraperId,
+        credentialsWithOtp,
+        options
+      );
       await generateSeparatedReports(
         scrapedAccounts,
         saveLocation,
         includeFutureTransactions,
-        includePendingTransactions,
+        includePendingTransactions
       );
     } catch (e) {
       console.error(e);
