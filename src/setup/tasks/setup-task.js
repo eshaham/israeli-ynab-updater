@@ -3,7 +3,6 @@ import ModifyTaskHandler from './modify-task-handler';
 import CreateTaskHandler from './create-task-handler';
 import DeleteTaskHandler from './delete-task-handler';
 
-
 async function selectAction() {
   const CREATE_NEW_TASK_ACTION = 'new';
   const MODIFY_TASK_ACTION = 'modify';
@@ -38,31 +37,34 @@ async function selectAction() {
   ]);
 
   switch (answers.action) {
-    case CREATE_NEW_TASK_ACTION: {
-      const createNewTaskAdapter = new CreateTaskHandler();
-      await createNewTaskAdapter.run();
-      await selectAction();
-    }
-      break;
-    case MODIFY_TASK_ACTION: {
-      const adapter = await ModifyTaskHandler.createAdapter();
-
-      if (adapter) {
-        await adapter.run();
+    case CREATE_NEW_TASK_ACTION:
+      {
+        const createNewTaskAdapter = new CreateTaskHandler();
+        await createNewTaskAdapter.run();
+        await selectAction();
       }
-
-      await selectAction();
-    }
       break;
-    case DELETE_TASK_ACTION: {
-      const adapter = await DeleteTaskHandler.createAdapter();
+    case MODIFY_TASK_ACTION:
+      {
+        const adapter = await ModifyTaskHandler.createAdapter();
 
-      if (adapter) {
-        await adapter.run();
+        if (adapter) {
+          await adapter.run();
+        }
+
+        await selectAction();
       }
+      break;
+    case DELETE_TASK_ACTION:
+      {
+        const adapter = await DeleteTaskHandler.createAdapter();
 
-      await selectAction();
-    }
+        if (adapter) {
+          await adapter.run();
+        }
+
+        await selectAction();
+      }
       break;
     default:
       break;

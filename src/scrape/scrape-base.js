@@ -1,9 +1,16 @@
 import moment from 'moment';
 import { SCRAPERS, createScraper } from '../helpers/scrapers';
 
-async function prepareResults(scraperId, scraperName, scraperResult, combineInstallments) {
+async function prepareResults(
+  scraperId,
+  scraperName,
+  scraperResult,
+  combineInstallments
+) {
   return scraperResult.accounts.map((account) => {
-    console.log(`${scraperName}: scraped ${account.txns.length} transactions from account ${account.accountNumber}`);
+    console.log(
+      `${scraperName}: scraped ${account.txns.length} transactions from account ${account.accountNumber}`,
+    );
 
     const txns = account.txns.map((txn) => {
       return {
@@ -12,7 +19,10 @@ async function prepareResults(scraperId, scraperName, scraperResult, combineInst
         dateMoment: moment(txn.date),
         payee: txn.description,
         status: txn.status,
-        amount: txn.type !== 'installments' || !combineInstallments ? txn.chargedAmount : txn.originalAmount,
+        amount:
+          txn.type !== 'installments' || !combineInstallments
+            ? txn.chargedAmount
+            : txn.originalAmount,
         installment: txn.installments ? txn.installments.number : null,
         total: txn.installments ? txn.installments.total : null,
       };
@@ -27,12 +37,8 @@ async function prepareResults(scraperId, scraperName, scraperResult, combineInst
   });
 }
 
-export default async function (scraperId, credentials, options) {
-  const {
-    combineInstallments,
-    startDate,
-    showBrowser,
-  } = options;
+export default async function scrape(scraperId, credentials, options) {
+  const { combineInstallments, startDate, showBrowser } = options;
 
   const scraperOptions = {
     companyId: scraperId,
@@ -61,5 +67,10 @@ export default async function (scraperId, credentials, options) {
     throw new Error(scraperResult.errorMessage);
   }
 
-  return prepareResults(scraperId, scraperName, scraperResult, combineInstallments);
+  return prepareResults(
+    scraperId,
+    scraperName,
+    scraperResult,
+    combineInstallments
+  );
 }

@@ -81,7 +81,7 @@ async function getParameters() {
   return result;
 }
 
-export default async function (showBrowser) {
+export default async function scrapeIndividual(showBrowser) {
   const {
     scraperId,
     combineInstallments,

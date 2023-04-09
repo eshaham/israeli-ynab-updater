@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import scrapeIndividual from './scrape-individual';
 import scrapeTask from './scrape-task';
 
-export default async function (showBrowser) {
+export default async function scrapingMainMenu(showBrowser) {
   const RUN_SCRAPER_ACTION = 'scraper';
   const RUN_TASK_ACTION = 'task';
 

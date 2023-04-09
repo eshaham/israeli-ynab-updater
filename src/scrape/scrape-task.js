@@ -42,7 +42,7 @@ async function getParameters() {
   return { taskName: null };
 }
 
-export default async function (showBrowser) {
+export default async function scrapeTask(showBrowser) {
   const { taskName } = await getParameters();
 
   if (taskName) {

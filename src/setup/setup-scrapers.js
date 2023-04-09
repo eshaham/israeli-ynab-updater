@@ -13,7 +13,7 @@ function validateNonEmpty(field, input) {
   return `${field} must be non empty`;
 }
 
-export default async function () {
+export default async function setupScrapers() {
   const scraperIdResult = await inquirer.prompt([
     {
       type: 'list',

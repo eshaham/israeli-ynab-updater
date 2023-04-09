@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import setupTask from './tasks/setup-task';
 import setupScrapers from './setup-scrapers';
 
-export default async function () {
+export default async function setupMainMenu() {
   const SETUP_SCRAPER_ACTION = 'scraper';
   const SETUP_TASK_ACTION = 'task';
   const { setupType } = await inquirer.prompt({
