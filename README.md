@@ -25,7 +25,7 @@ npm install
 ```
 
 ### Saving credentials
-The credentials for each scraper are encrypted and saved in an dedicated file on your system.  
+The credentials for each scraper are encrypted and saved in a dedicated file on your system.  
 To save credentials for a specific scraper, run the following command and choose the scraper:
 
 ```bash
